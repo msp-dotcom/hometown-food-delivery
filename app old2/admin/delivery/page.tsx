@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import AssignRiderSelect from "./AssignRiderSelect";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +42,7 @@ export default async function LiveDeliveryPage() {
                     <td className="font-mono">{new Date(o.createdAt).toLocaleTimeString()}</td>
                     <td>
                       {o.rider?.name || (
-                        <AssignRiderSelect orderId={o.id} riders={riders} />
+                        <span className="text-[#B4483A] font-bold">Unassigned</span>
                       )}
                     </td>
                     <td className="font-mono">{o.customer.phone}</td>
