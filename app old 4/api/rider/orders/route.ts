@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 // GET /api/rider/orders?riderId=xxx — the rider's current active order, if any
 export async function GET(req: NextRequest) {
   const riderId = req.nextUrl.searchParams.get("riderId");

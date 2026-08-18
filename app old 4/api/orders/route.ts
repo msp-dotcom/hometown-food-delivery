@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 // POST /api/orders — place an order
 // Body: { phone, deliveryAddress, paymentMethod, items: [{menuItemId, qty}] }
 export async function POST(req: NextRequest) {

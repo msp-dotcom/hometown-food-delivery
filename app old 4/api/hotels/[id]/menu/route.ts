@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 // GET /api/hotels/:id/menu — all menu items for one hotel
 export async function GET(
   _req: NextRequest,

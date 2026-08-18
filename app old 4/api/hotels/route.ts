@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 // GET /api/hotels — list all hotels (used by Home page)
 export async function GET() {
   const hotels = await prisma.hotel.findMany({

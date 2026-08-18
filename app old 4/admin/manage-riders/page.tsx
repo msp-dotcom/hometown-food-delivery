@@ -37,12 +37,6 @@ export default function ManageRidersPage() {
     }
   }
 
-  async function removeRider(rider: Rider) {
-    if (!confirm(`Remove ${rider.name} (${rider.phone})? This unassigns them from any current orders.`)) return;
-    await fetch(`/api/admin/manage-riders/${rider.id}`, { method: "DELETE" });
-    load();
-  }
-
   return (
     <div>
       <p className="text-[10px] font-bold tracking-wide text-[#B87A1F] uppercase mb-1">Operations</p>
@@ -87,9 +81,7 @@ export default function ManageRidersPage() {
               <tr className="text-left text-[10px] uppercase text-[#68706B] border-b border-[#E4DFD1]">
                 <th className="py-2">Name</th>
                 <th>Phone</th>
-                <th>ID</th>
                 <th>Status</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +89,6 @@ export default function ManageRidersPage() {
                 <tr key={r.id} className="border-b border-[#E4DFD1] last:border-0">
                   <td className="py-2 font-bold">{r.name}</td>
                   <td className="font-mono">{r.phone}</td>
-                  <td className="font-mono text-[9px] text-[#68706B]">{r.id.slice(-6)}</td>
                   <td>
                     <span
                       className={`text-[10px] font-bold px-2 py-1 rounded-full ${
@@ -106,14 +97,6 @@ export default function ManageRidersPage() {
                     >
                       {r.available ? "Available" : "Off duty / Busy"}
                     </span>
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => removeRider(r)}
-                      className="text-[10px] font-bold text-[#B4483A]"
-                    >
-                      Remove
-                    </button>
                   </td>
                 </tr>
               ))}

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 // PATCH /api/menu/:itemId — edit name/price/category (the Edit button from Admin)
 export async function PATCH(
   req: NextRequest,

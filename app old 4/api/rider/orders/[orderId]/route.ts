@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 // PATCH /api/rider/orders/:orderId  { status }
 // Auto-busy rule: when an order reaches DELIVERED, the rider is freed up automatically.
 export async function PATCH(

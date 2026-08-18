@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 // POST /api/rider/login  { phone }
 // NOTE: Real OTP verification (via MSG91 or similar) should wrap this later —
 // for now this just checks the phone is a rider Admin has already registered,
