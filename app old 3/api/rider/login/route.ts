@@ -9,11 +9,7 @@ export async function POST(req: NextRequest) {
   const { phone } = await req.json();
   if (!phone) return NextResponse.json({ error: "phone is required" }, { status: 400 });
 
-  // Match on the last 10 digits, so "9845012345" and "+919845012345" both work
-  const last10 = phone.replace(/\D/g, "").slice(-10);
-  const riders = await prisma.rider.findMany();
-  const rider = riders.find((r) => r.phone.replace(/\D/g, "").slice(-10) === last10);
-
+  const rider = await prisma.rider.findUnique({ where: { phone } });
   if (!rider) {
     return NextResponse.json(
       { error: "This number isn't registered. Ask Admin to add you as a rider first." },

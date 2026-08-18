@@ -17,10 +17,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <div className="text-[9px] uppercase tracking-wider text-[#5E6C70] mb-1 mt-3">Operations</div>
         <NavItem href="/admin/delivery" label="Live Delivery" n="03" />
-        <NavItem href="/admin/manage-riders" label="Manage Riders" n="04" />
-        <NavItem href="/admin/riders" label="Rider Earnings" n="05" />
-        <NavItem href="/admin/performance" label="Hotel Performance" n="06" />
-        <NavItem href="/admin/settlements" label="Settlements" n="07" />
+        <NavItem href="/admin/riders" label="Rider Earnings" n="04" />
+        <NavItem href="/admin/performance" label="Hotel Performance" n="05" />
+        <NavItem href="/admin/settlements" label="Settlements" n="06" />
       </div>
 
       <div className="flex-1 p-8 max-w-5xl print:p-0 print:max-w-full">{children}</div>
