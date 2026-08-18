@@ -1,0 +1,99 @@
+// -----------------------------------------------------------------------
+// DATABASE: PostgreSQL via Supabase — set up for direct online deployment
+// (no local SQLite step). DATABASE_URL in .env must be your Supabase
+// connection string: Supabase dashboard → Project Settings → Database →
+// Connection string → "URI" (use the "Connection pooling" one for Vercel).
+// -----------------------------------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hotel {
+  id          String     @id @default(cuid())
+  name        String
+  phone       String
+  address     String
+  latitude    Float?
+  longitude   Float?
+  isOpen      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  menuItems   MenuItem[]
+  orderItems  OrderItem[]
+  tables      TableQR[]
+}
+
+model MenuItem {
+  id          String      @id @default(cuid())
+  hotelId     String
+  hotel       Hotel       @relation(fields: [hotelId], references: [id])
+  name        String
+  price       Int
+  category    String      // Veg | Non-Veg | Drinks | Snacks
+  imageEmoji  String      @default("🍽")
+  available   Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+}
+
+model TableQR {
+  id          String   @id @default(cuid())
+  hotelId     String
+  hotel       Hotel    @relation(fields: [hotelId], references: [id])
+  tableNumber Int
+  createdAt   DateTime @default(now())
+
+  @@unique([hotelId, tableNumber])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Rider {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  available Boolean  @default(false)
+  orders    Order[]
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  customerId      String
+  customer        Customer    @relation(fields: [customerId], references: [id])
+  riderId         String?
+  rider           Rider?      @relation(fields: [riderId], references: [id])
+  status          String      @default("PLACED")
+  // PLACED -> ACCEPTED -> PREPARING -> READY -> PICKED_UP -> DELIVERED
+  paymentMethod   String      @default("COD")   // COD | ONLINE
+  deliveryAddress String
+  subtotal        Int
+  gst             Int
+  deliveryFee     Int
+  total           Int
+  createdAt       DateTime    @default(now())
+  deliveredAt     DateTime?
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  hotelId    String
+  hotel      Hotel    @relation(fields: [hotelId], references: [id])
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  quantity   Int
+  priceEach  Int
+}
