@@ -14,6 +14,9 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
             <Link href="/cart" className="flex-1 text-center py-3 text-xs font-semibold text-charcoalSoft hover:text-mustard transition-colors">
               <span className="block text-base mb-0.5">🛒</span>Cart
             </Link>
+            <Link href="/track" className="flex-1 text-center py-3 text-xs font-semibold text-charcoalSoft hover:text-mustard transition-colors">
+              <span className="block text-base mb-0.5">◎</span>Track
+            </Link>
           </nav>
         </div>
       </div>
