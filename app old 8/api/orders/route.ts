@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { computeRouteDistance, computeDeliveryFee } from "@/lib/distance";
 
 export const dynamic = "force-dynamic";
 
 // POST /api/orders — place an order
-// Body: { phone, deliveryAddress, paymentMethod, items: [{menuItemId, qty}], customerLat?, customerLng? }
+// Body: { phone, deliveryAddress, paymentMethod, items: [{menuItemId, qty}] }
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { phone, deliveryAddress, paymentMethod, items, customerLat, customerLng } = body;
+  const { phone, deliveryAddress, paymentMethod, items } = body;
 
   if (!phone || !deliveryAddress || !items?.length) {
     return NextResponse.json(
@@ -24,20 +23,17 @@ export async function POST(req: NextRequest) {
     create: { phone },
   });
 
-  // Look up each menu item to get its live price and hotel (with coordinates for the fee calc)
+  // Look up each menu item to get its live price and hotel
   const menuItems = await prisma.menuItem.findMany({
     where: { id: { in: items.map((i: any) => i.menuItemId) } },
-    include: { hotel: true },
   });
 
-  const hotelsInOrder = Array.from(
-    new Map(menuItems.map((m) => [m.hotel.id, m.hotel])).values()
-  );
+  const hotelIds = Array.from(new Set(menuItems.map((m) => m.hotelId)));
 
   // Multi-hotel rule: only 1 or 2 hotels allowed per order (matches the distance-limited
   // multi-hotel cart rule — the distance check itself should happen on the frontend
   // before reaching checkout, using each hotel's lat/lng).
-  if (hotelsInOrder.length > 2) {
+  if (hotelIds.length > 2) {
     return NextResponse.json(
       { error: "Orders can combine at most 2 hotels at a time" },
       { status: 400 }
@@ -49,24 +45,7 @@ export async function POST(req: NextRequest) {
     return sum + (menuItem?.price ?? 0) * i.qty;
   }, 0);
   const gst = Math.round(subtotal * 0.05);
-
-  // Distance-based delivery fee: ₹20 flat for the first km, +₹15/km after —
-  // calculated server-side (never trust a client-sent price) using each hotel's
-  // real coordinates and the customer's location, routed hotel -> hotel -> customer.
-  let deliveryFee = 30; // fallback flat fee if we don't have a customer location yet
-  if (customerLat && customerLng) {
-    const stops = [
-      ...hotelsInOrder
-        .filter((h) => h.latitude != null && h.longitude != null)
-        .map((h) => ({ lat: h.latitude as number, lng: h.longitude as number })),
-      { lat: customerLat, lng: customerLng },
-    ];
-    if (stops.length >= 2) {
-      const distanceKm = computeRouteDistance(stops);
-      deliveryFee = computeDeliveryFee(distanceKm);
-    }
-  }
-
+  const deliveryFee = hotelIds.length > 1 ? 35 : 30; // combined fee for multi-hotel trips
   const total = subtotal + gst + deliveryFee;
 
   const order = await prisma.order.create({
@@ -96,7 +75,7 @@ export async function POST(req: NextRequest) {
 
   // NOTE: This is where the WhatsApp send-to-hotel call goes once a BSP
   // (AiSensy/Interakt) is connected — send order details + Accept/Reject
-  // buttons to each hotel in hotelsInOrder, using their `phone` field.
+  // buttons to each hotel in hotelIds, using their `phone` field.
 
   return NextResponse.json(order, { status: 201 });
 }

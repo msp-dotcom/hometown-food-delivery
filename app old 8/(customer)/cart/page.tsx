@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
-import { computeRouteDistance, computeDeliveryFee } from "@/lib/distance";
-
-type HotelCoord = { id: string; latitude: number | null; longitude: number | null };
 
 export default function CartPage() {
   const { items, changeQty, totals, clearCart } = useCart();
@@ -13,9 +10,6 @@ export default function CartPage() {
   const [address, setAddress] = useState("");
   const [payment, setPayment] = useState<"COD" | "ONLINE">("COD");
   const [placing, setPlacing] = useState(false);
-  const [hotelCoords, setHotelCoords] = useState<HotelCoord[]>([]);
-  const [customerLoc, setCustomerLoc] = useState<{ lat: number; lng: number } | null>(null);
-  const [locStatus, setLocStatus] = useState<"idle" | "loading" | "denied" | "done">("idle");
   const router = useRouter();
 
   const byHotel: Record<string, typeof items> = {};
@@ -23,50 +17,8 @@ export default function CartPage() {
     (byHotel[i.hotelName] = byHotel[i.hotelName] || []).push(i);
   });
   const hotelNames = Object.keys(byHotel);
-  const hotelIds = Array.from(new Set(items.map((i) => i.hotelId)));
-
-  // Fetch this cart's hotels' coordinates so we can calculate real distance
-  useEffect(() => {
-    if (hotelIds.length === 0) return;
-    fetch(`/api/hotels?ids=${hotelIds.join(",")}`)
-      .then((r) => r.json())
-      .then(setHotelCoords);
-  }, [hotelIds.join(",")]);
-
-  function useMyLocation() {
-    if (!navigator.geolocation) {
-      setLocStatus("denied");
-      return;
-    }
-    setLocStatus("loading");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCustomerLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setLocStatus("done");
-      },
-      () => setLocStatus("denied"),
-      { timeout: 10000 }
-    );
-  }
-
   const gst = Math.round(totals.subtotal * 0.05);
-
-  let deliveryFee = 30; // fallback until real location is available
-  let distanceLabel = "";
-  if (customerLoc && hotelCoords.length > 0) {
-    const stops = [
-      ...hotelCoords
-        .filter((h) => h.latitude != null && h.longitude != null)
-        .map((h) => ({ lat: h.latitude as number, lng: h.longitude as number })),
-      { lat: customerLoc.lat, lng: customerLoc.lng },
-    ];
-    if (stops.length >= 2) {
-      const distanceKm = computeRouteDistance(stops);
-      deliveryFee = computeDeliveryFee(distanceKm);
-      distanceLabel = `${distanceKm.toFixed(1)} km`;
-    }
-  }
-
+  const deliveryFee = hotelNames.length > 1 ? 35 : 30;
   const total = totals.subtotal + gst + deliveryFee;
 
   async function placeOrder() {
@@ -83,8 +35,6 @@ export default function CartPage() {
         deliveryAddress: address,
         paymentMethod: payment,
         items: items.map((i) => ({ menuItemId: i.menuItemId, qty: i.qty })),
-        customerLat: customerLoc?.lat,
-        customerLng: customerLoc?.lng,
       }),
     });
     setPlacing(false);
@@ -136,31 +86,8 @@ export default function CartPage() {
         </div>
       )}
 
-      <div className="bg-sand rounded-lg p-3 mb-3">
-        {locStatus !== "done" ? (
-          <button
-            onClick={useMyLocation}
-            className="w-full text-xs font-bold text-mustard"
-          >
-            {locStatus === "loading" ? "Getting your location…" : "📍 Use my location for accurate delivery fee"}
-          </button>
-        ) : (
-          <p className="text-xs text-charcoalSoft">
-            📍 Location set — delivery fee calculated for {distanceLabel}.
-          </p>
-        )}
-        {locStatus === "denied" && (
-          <p className="text-[10px] text-chili mt-1">
-            Couldn't get location — using a standard fee instead.
-          </p>
-        )}
-      </div>
-
       <div className="flex justify-between text-sm py-1"><span>GST</span><span>₹{gst}</span></div>
-      <div className="flex justify-between text-sm py-1">
-        <span>Delivery Charge {distanceLabel && `(${distanceLabel})`}</span>
-        <span>₹{deliveryFee}</span>
-      </div>
+      <div className="flex justify-between text-sm py-1"><span>Delivery Charge</span><span>₹{deliveryFee}</span></div>
       <div className="flex justify-between font-bold text-base border-t border-dashed border-line mt-2 pt-2">
         <span>Total</span><span>₹{total}</span>
       </div>

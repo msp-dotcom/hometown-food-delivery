@@ -4,14 +4,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 // GET /api/hotels — list all hotels (used by Home page)
-// GET /api/hotels?ids=id1,id2 — fetch just specific hotels (used by Cart for distance calc)
-export async function GET(req: NextRequest) {
-  const idsParam = req.nextUrl.searchParams.get("ids");
-  if (idsParam) {
-    const ids = idsParam.split(",").filter(Boolean);
-    const hotels = await prisma.hotel.findMany({ where: { id: { in: ids } } });
-    return NextResponse.json(hotels);
-  }
+export async function GET() {
   const hotels = await prisma.hotel.findMany({
     orderBy: { createdAt: "desc" },
   });
