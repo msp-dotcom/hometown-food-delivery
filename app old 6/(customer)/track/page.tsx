@@ -23,23 +23,8 @@ export default function TrackPage() {
 
 function TrackContent() {
   const params = useSearchParams();
-  const [phone, setPhone] = useState("");
+  const phone = params.get("phone") || "";
   const [order, setOrder] = useState<any>(null);
-  const [checkedStorage, setCheckedStorage] = useState(false);
-
-  // Prefer the phone in the URL (fresh from checkout); otherwise fall back to
-  // the last phone number used, remembered locally — so tapping "Track" from
-  // the bottom nav still works, not just the redirect right after ordering.
-  useEffect(() => {
-    const fromUrl = params.get("phone");
-    if (fromUrl) {
-      setPhone(fromUrl);
-      localStorage.setItem("lastOrderPhone", fromUrl);
-    } else {
-      setPhone(localStorage.getItem("lastOrderPhone") || "");
-    }
-    setCheckedStorage(true);
-  }, [params]);
 
   useEffect(() => {
     if (!phone) return;
@@ -48,7 +33,6 @@ function TrackContent() {
       .then((orders) => setOrder(orders[0] || null));
   }, [phone]);
 
-  if (!checkedStorage) return <p className="p-6 text-sm text-charcoalSoft">Loading…</p>;
   if (!phone) return <p className="p-6 text-sm text-charcoalSoft">No order to track yet.</p>;
   if (!order) return <p className="p-6 text-sm text-charcoalSoft">Loading order…</p>;
 
