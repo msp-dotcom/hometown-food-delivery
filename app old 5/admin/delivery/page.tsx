@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import AssignRiderSelect from "./AssignRiderSelect";
-import AutoRefresh from "../AutoRefresh";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +14,6 @@ export default async function LiveDeliveryPage() {
 
   return (
     <div>
-      <AutoRefresh seconds={10} />
       <p className="text-[10px] font-bold tracking-wide text-[#B87A1F] uppercase mb-1">Operations</p>
       <h1 className="text-2xl font-extrabold mb-1">Live Delivery</h1>
       <p className="text-xs text-[#68706B] mb-6">Every active order — hotel timing, rider, and progress.</p>

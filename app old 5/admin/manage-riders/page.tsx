@@ -15,10 +15,6 @@ export default function ManageRidersPage() {
       .then(setRiders);
   }
   useEffect(load, []);
-  useEffect(() => {
-    const interval = setInterval(load, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
   async function addRider() {
     if (!form.name || !form.phone) {
