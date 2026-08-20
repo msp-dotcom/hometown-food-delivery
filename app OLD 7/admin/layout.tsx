@@ -1,23 +1,6 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  // Login page renders standalone, without the sidebar shell
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
-  }
-
-  async function logout() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
-    router.refresh();
-  }
-
   return (
     <div className="min-h-screen flex bg-[#F7F4EC] text-[#1B2126]">
       <div className="w-56 bg-[#101820] text-[#CBD4D6] p-5 flex flex-col gap-1 shrink-0 print:hidden">
@@ -38,13 +21,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <NavItem href="/admin/riders" label="Rider Earnings" n="05" />
         <NavItem href="/admin/performance" label="Hotel Performance" n="06" />
         <NavItem href="/admin/settlements" label="Settlements" n="07" />
-
-        <button
-          onClick={logout}
-          className="mt-auto px-2.5 py-2 rounded-lg text-sm font-semibold text-[#B4483A] hover:bg-[#1A242B] text-left"
-        >
-          Logout
-        </button>
       </div>
 
       <div className="flex-1 p-8 max-w-5xl print:p-0 print:max-w-full">{children}</div>
