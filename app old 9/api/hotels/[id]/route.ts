@@ -16,20 +16,15 @@ export async function GET(
   return NextResponse.json(hotel);
 }
 
-// PATCH /api/hotels/:id — toggle Open/Closed status, or update coordinates
+// PATCH /api/hotels/:id — toggle Open/Closed status (used by the WhatsApp-status flow)
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const body = await req.json();
-  const data: any = {};
-  if (typeof body.isOpen === "boolean") data.isOpen = body.isOpen;
-  if (typeof body.latitude === "number") data.latitude = body.latitude;
-  if (typeof body.longitude === "number") data.longitude = body.longitude;
-
   const hotel = await prisma.hotel.update({
     where: { id: params.id },
-    data,
+    data: { isOpen: body.isOpen },
   });
   return NextResponse.json(hotel);
 }

@@ -3,21 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-type Hotel = {
-  id: string;
-  name: string;
-  phone: string;
-  address: string;
-  isOpen: boolean;
-  latitude: number | null;
-  longitude: number | null;
-};
+type Hotel = { id: string; name: string; phone: string; address: string; isOpen: boolean };
 
-export default function AdminHotelsPage() {
+export default function AdminPage() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [form, setForm] = useState({ name: "", phone: "", address: "" });
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [locating, setLocating] = useState(false);
   const [saving, setSaving] = useState(false);
 
   function loadHotels() {
@@ -26,25 +16,6 @@ export default function AdminHotelsPage() {
       .then(setHotels);
   }
   useEffect(loadHotels, []);
-
-  function captureLocation() {
-    if (!navigator.geolocation) {
-      alert("Location isn't available in this browser");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setLocating(false);
-      },
-      () => {
-        alert("Couldn't get location — you can still add the hotel and set location later");
-        setLocating(false);
-      },
-      { timeout: 10000 }
-    );
-  }
 
   async function addHotel() {
     if (!form.name || !form.phone || !form.address) {
@@ -55,16 +26,11 @@ export default function AdminHotelsPage() {
     const res = await fetch("/api/hotels", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        latitude: coords?.lat,
-        longitude: coords?.lng,
-      }),
+      body: JSON.stringify(form),
     });
     setSaving(false);
     if (res.ok) {
       setForm({ name: "", phone: "", address: "" });
-      setCoords(null);
       loadHotels();
     }
   }
@@ -76,25 +42,6 @@ export default function AdminHotelsPage() {
       body: JSON.stringify({ isOpen: !hotel.isOpen }),
     });
     loadHotels();
-  }
-
-  async function setLocationForExisting(hotel: Hotel) {
-    if (!navigator.geolocation) {
-      alert("Location isn't available in this browser");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        await fetch(`/api/hotels/${hotel.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-        });
-        loadHotels();
-      },
-      () => alert("Couldn't get your current location"),
-      { timeout: 10000 }
-    );
   }
 
   async function removeHotel(hotel: Hotel) {
@@ -128,26 +75,6 @@ export default function AdminHotelsPage() {
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
         />
-
-        <div className="bg-sand rounded-lg p-2.5 mb-3">
-          {coords ? (
-            <p className="text-xs text-charcoalSoft">
-              📍 Location captured ({coords.lat.toFixed(4)}, {coords.lng.toFixed(4)})
-            </p>
-          ) : (
-            <button
-              onClick={captureLocation}
-              disabled={locating}
-              className="text-xs font-bold text-mustard"
-            >
-              {locating ? "Getting location…" : "📍 Stand at the hotel & tap to set location"}
-            </button>
-          )}
-          <p className="text-[10px] text-charcoalSoft mt-1">
-            Needed for showing km distance and calculating delivery fees correctly. Can be set later too.
-          </p>
-        </div>
-
         <button
           disabled={saving}
           onClick={addHotel}
@@ -163,18 +90,6 @@ export default function AdminHotelsPage() {
             <div>
               <p className="text-sm font-bold">{h.name}</p>
               <p className="text-[11px] text-charcoalSoft">{h.phone}</p>
-              {h.latitude == null ? (
-                <button
-                  onClick={() => setLocationForExisting(h)}
-                  className="text-[10px] font-bold text-chili mt-1"
-                >
-                  ⚠ No location set — tap to set (stand at hotel first)
-                </button>
-              ) : (
-                <p className="text-[10px] text-charcoalSoft mt-1">
-                  📍 {h.latitude.toFixed(4)}, {h.longitude?.toFixed(4)}
-                </p>
-              )}
             </div>
             <div className="flex items-center gap-3">
               <button
