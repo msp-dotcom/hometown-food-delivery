@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { uploadMenuImage } from "@/lib/upload-image";
 
 type Hotel = {
   id: string;
@@ -11,6 +12,7 @@ type Hotel = {
   isOpen: boolean;
   latitude: number | null;
   longitude: number | null;
+  imageUrl?: string | null;
 };
 
 export default function AdminHotelsPage() {
@@ -19,6 +21,9 @@ export default function AdminHotelsPage() {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [newImageFile, setNewImageFile] = useState<File | null>(null);
+  const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
 
   function loadHotels() {
     fetch("/api/hotels")
@@ -26,6 +31,13 @@ export default function AdminHotelsPage() {
       .then(setHotels);
   }
   useEffect(loadHotels, []);
+
+  function pickNewImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setNewImageFile(file);
+    setNewImagePreview(URL.createObjectURL(file));
+  }
 
   function captureLocation() {
     if (!navigator.geolocation) {
@@ -52,6 +64,14 @@ export default function AdminHotelsPage() {
       return;
     }
     setSaving(true);
+    let imageUrl: string | undefined;
+    if (newImageFile) {
+      try {
+        imageUrl = await uploadMenuImage(newImageFile);
+      } catch (e: any) {
+        alert(e.message || "Photo upload failed — saving hotel without a photo");
+      }
+    }
     const res = await fetch("/api/hotels", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -59,12 +79,15 @@ export default function AdminHotelsPage() {
         ...form,
         latitude: coords?.lat,
         longitude: coords?.lng,
+        imageUrl,
       }),
     });
     setSaving(false);
     if (res.ok) {
       setForm({ name: "", phone: "", address: "" });
       setCoords(null);
+      setNewImageFile(null);
+      setNewImagePreview(null);
       loadHotels();
     }
   }
@@ -97,6 +120,24 @@ export default function AdminHotelsPage() {
     );
   }
 
+  async function setImageForExisting(hotel: Hotel, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingId(hotel.id);
+    try {
+      const imageUrl = await uploadMenuImage(file);
+      await fetch(`/api/hotels/${hotel.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
+      });
+      loadHotels();
+    } catch (err: any) {
+      alert(err.message || "Upload failed");
+    }
+    setUploadingId(null);
+  }
+
   async function removeHotel(hotel: Hotel) {
     if (!confirm(`Remove ${hotel.name}? This also removes its menu items.`)) return;
     await fetch(`/api/hotels/${hotel.id}`, { method: "DELETE" });
@@ -110,6 +151,19 @@ export default function AdminHotelsPage() {
 
       <div className="border border-line rounded-xl p-3 mb-5">
         <p className="text-sm font-bold mb-2">Add Hotel</p>
+
+        <label className="flex items-center gap-3 border border-dashed border-line rounded-lg p-3 mb-2 cursor-pointer">
+          {newImagePreview ? (
+            <img src={newImagePreview} className="w-12 h-12 rounded-lg object-cover" alt="" />
+          ) : (
+            <div className="w-12 h-12 rounded-lg bg-sand flex items-center justify-center text-lg">📷</div>
+          )}
+          <span className="text-xs text-charcoalSoft">
+            {newImageFile ? newImageFile.name : "Tap to add a hotel photo (optional)"}
+          </span>
+          <input type="file" accept="image/*" className="hidden" onChange={pickNewImage} />
+        </label>
+
         <input
           className="w-full border border-line rounded-lg px-3 py-2 text-sm mb-2"
           placeholder="Hotel name"
@@ -160,21 +214,40 @@ export default function AdminHotelsPage() {
       <div className="space-y-2">
         {hotels.map((h) => (
           <div key={h.id} className="flex items-center justify-between border border-line rounded-xl p-3">
-            <div>
-              <p className="text-sm font-bold">{h.name}</p>
-              <p className="text-[11px] text-charcoalSoft">{h.phone}</p>
-              {h.latitude == null ? (
-                <button
-                  onClick={() => setLocationForExisting(h)}
-                  className="text-[10px] font-bold text-chili mt-1"
-                >
-                  ⚠ No location set — tap to set (stand at hotel first)
-                </button>
-              ) : (
-                <p className="text-[10px] text-charcoalSoft mt-1">
-                  📍 {h.latitude.toFixed(4)}, {h.longitude?.toFixed(4)}
+            <div className="flex items-center gap-3">
+              <label className="cursor-pointer">
+                {h.imageUrl ? (
+                  <img src={h.imageUrl} className="w-12 h-12 rounded-lg object-cover" alt="" />
+                ) : (
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-mustard to-chili flex items-center justify-center text-lg text-white">
+                    🍽
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => setImageForExisting(h, e)}
+                />
+              </label>
+              <div>
+                <p className="text-sm font-bold">{h.name}</p>
+                <p className="text-[11px] text-charcoalSoft">
+                  {uploadingId === h.id ? "Uploading photo…" : h.phone}
                 </p>
-              )}
+                {h.latitude == null ? (
+                  <button
+                    onClick={() => setLocationForExisting(h)}
+                    className="text-[10px] font-bold text-chili mt-1"
+                  >
+                    ⚠ No location set — tap to set
+                  </button>
+                ) : (
+                  <p className="text-[10px] text-charcoalSoft mt-1">
+                    📍 {h.latitude.toFixed(4)}, {h.longitude?.toFixed(4)}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <button

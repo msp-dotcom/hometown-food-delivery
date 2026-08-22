@@ -25,8 +25,14 @@ export default async function HomePage() {
               h.isOpen ? "" : "opacity-50 pointer-events-none"
             }`}
           >
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-mustardLight to-chili flex items-center justify-center text-2xl shadow-inner">
-              🍽
+            <div className="w-14 h-14 rounded-xl overflow-hidden shadow-inner flex-shrink-0">
+              {h.imageUrl ? (
+                <img src={h.imageUrl} className="w-full h-full object-cover" alt={h.name} />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-mustardLight to-chili flex items-center justify-center text-2xl">
+                  🍽
+                </div>
+              )}
             </div>
             <div>
               <h4 className="text-sm font-bold">{h.name}</h4>

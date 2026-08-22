@@ -21,6 +21,7 @@ model Hotel {
   address     String
   latitude    Float?
   longitude   Float?
+  imageUrl    String?
   isOpen      Boolean    @default(true)
   createdAt   DateTime   @default(now())
   menuItems   MenuItem[]

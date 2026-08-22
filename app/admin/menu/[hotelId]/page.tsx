@@ -84,6 +84,12 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
     try {
       const imageUrl = await uploadMenuImage(file);
       setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, imageUrl } : i)));
+      // Save immediately — a photo upload should never need a separate "Save" click to take effect
+      await fetch(`/api/menu/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
+      });
     } catch (err: any) {
       alert(err.message || "Upload failed");
     }

@@ -12,7 +12,7 @@ type MenuItem = {
   imageEmoji: string;
   imageUrl?: string | null;
 };
-type Hotel = { id: string; name: string; address: string; menuItems: MenuItem[] };
+type Hotel = { id: string; name: string; address: string; imageUrl?: string | null; menuItems: MenuItem[] };
 
 export default function HotelPage({ params }: { params: { id: string } }) {
   const [hotel, setHotel] = useState<Hotel | null>(null);
@@ -34,7 +34,11 @@ export default function HotelPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="pb-24">
-      <div className="h-24 bg-gradient-to-br from-mustard to-chili" />
+      {hotel.imageUrl ? (
+        <img src={hotel.imageUrl} className="h-24 w-full object-cover" alt={hotel.name} />
+      ) : (
+        <div className="h-24 bg-gradient-to-br from-mustard to-chili" />
+      )}
       <div className="px-4 -mt-4 bg-white rounded-t-2xl relative pt-4">
         <h1 className="text-xl font-bold">{hotel.name}</h1>
         <p className="text-xs text-charcoalSoft mb-3">{hotel.address}</p>

@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 // POST /api/hotels — create a new hotel (used by Admin > Add Hotel)
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, phone, address, latitude, longitude } = body;
+  const { name, phone, address, latitude, longitude, imageUrl } = body;
 
   if (!name || !phone || !address) {
     return NextResponse.json(
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   }
 
   const hotel = await prisma.hotel.create({
-    data: { name, phone, address, latitude, longitude },
+    data: { name, phone, address, latitude, longitude, imageUrl },
   });
   return NextResponse.json(hotel, { status: 201 });
 }
