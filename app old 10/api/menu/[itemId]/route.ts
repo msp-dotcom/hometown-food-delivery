@@ -16,7 +16,6 @@ export async function PATCH(
       price: body.price !== undefined ? Number(body.price) : undefined,
       category: body.category,
       available: body.available,
-      imageUrl: body.imageUrl !== undefined ? body.imageUrl : undefined,
     },
   });
   return NextResponse.json(item);

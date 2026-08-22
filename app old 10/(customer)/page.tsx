@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import LocationBar from "./LocationBar";
 
 export const dynamic = "force-dynamic"; // always show live hotel data, not a cached build
 
@@ -10,9 +9,8 @@ export default async function HomePage() {
   return (
     <div className="px-4 pt-6">
       <p className="text-xs font-bold tracking-wide text-mustard uppercase mb-1">
-        Deliver to
+        Deliver to · Home
       </p>
-      <LocationBar />
       <h1 className="text-3xl font-extrabold mb-5 tracking-tight">Hungry?</h1>
 
       <p className="text-sm font-bold mb-2">Hotels near you</p>

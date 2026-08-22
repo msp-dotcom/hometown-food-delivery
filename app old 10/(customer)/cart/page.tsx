@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
-import { useLocation } from "@/lib/location-context";
 import { computeRouteDistance, computeDeliveryFee } from "@/lib/distance";
 
 type HotelCoord = { id: string; latitude: number | null; longitude: number | null };
 
 export default function CartPage() {
   const { items, changeQty, totals, clearCart } = useCart();
-  const { selected } = useLocation();
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [payment, setPayment] = useState<"COD" | "ONLINE">("COD");
@@ -19,21 +17,6 @@ export default function CartPage() {
   const [customerLoc, setCustomerLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [locStatus, setLocStatus] = useState<"idle" | "loading" | "denied" | "done">("idle");
   const router = useRouter();
-
-  // Pre-fill from the login phone number and the selected saved address
-  useEffect(() => {
-    const savedPhone = localStorage.getItem("customerPhone");
-    if (savedPhone) setPhone(savedPhone);
-  }, []);
-  useEffect(() => {
-    if (selected) {
-      setAddress(selected.text);
-      if (selected.lat && selected.lng) {
-        setCustomerLoc({ lat: selected.lat, lng: selected.lng });
-        setLocStatus("done");
-      }
-    }
-  }, [selected]);
 
   const byHotel: Record<string, typeof items> = {};
   items.forEach((i) => {

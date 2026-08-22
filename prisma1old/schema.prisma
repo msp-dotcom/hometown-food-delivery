@@ -36,7 +36,6 @@ model MenuItem {
   price       Int
   category    String      // Veg | Non-Veg | Drinks | Snacks
   imageEmoji  String      @default("🍽")
-  imageUrl    String?     // real uploaded photo, falls back to imageEmoji if not set
   available   Boolean     @default(true)
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]

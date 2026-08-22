@@ -10,7 +10,6 @@ type MenuItem = {
   price: number;
   category: string;
   imageEmoji: string;
-  imageUrl?: string | null;
 };
 type Hotel = { id: string; name: string; address: string; menuItems: MenuItem[] };
 
@@ -64,13 +63,9 @@ export default function HotelPage({ params }: { params: { id: string } }) {
                   const inCart = items.find((i) => i.menuItemId === m.id);
                   return (
                     <div key={m.id} className="w-28 shrink-0 border border-line rounded-xl overflow-hidden">
-                      {m.imageUrl ? (
-                        <img src={m.imageUrl} className="h-16 w-full object-cover" alt={m.name} />
-                      ) : (
-                        <div className="h-16 bg-gradient-to-br from-mustardLight to-chili flex items-center justify-center text-2xl text-white">
-                          {m.imageEmoji}
-                        </div>
-                      )}
+                      <div className="h-16 bg-gradient-to-br from-mustardLight to-chili flex items-center justify-center text-2xl text-white">
+                        {m.imageEmoji}
+                      </div>
                       <div className="p-2">
                         <p className="text-[11px] font-bold leading-tight mb-1">{m.name}</p>
                         <p className="text-[11px] font-bold text-charcoalSoft mb-1.5">₹{m.price}</p>

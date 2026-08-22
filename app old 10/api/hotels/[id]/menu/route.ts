@@ -21,7 +21,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   const body = await req.json();
-  const { name, price, category, imageEmoji, imageUrl } = body;
+  const { name, price, category, imageEmoji } = body;
 
   if (!name || !price || !category) {
     return NextResponse.json(
@@ -37,7 +37,6 @@ export async function POST(
       price: Number(price),
       category,
       imageEmoji: imageEmoji || "🍽",
-      imageUrl: imageUrl || null,
     },
   });
   return NextResponse.json(item, { status: 201 });
