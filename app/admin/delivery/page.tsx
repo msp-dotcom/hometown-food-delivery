@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import AssignRiderSelect from "./AssignRiderSelect";
 import AutoRefresh from "../AutoRefresh";
+import OrderStatusControl from "./OrderStatusControl";
 
 export const dynamic = "force-dynamic";
 
 export default async function LiveDeliveryPage() {
   const activeOrders = await prisma.order.findMany({
-    where: { status: { not: "DELIVERED" } },
+    where: { status: { notIn: ["DELIVERED", "CANCELLED"] } },
     orderBy: { createdAt: "desc" },
     include: { items: { include: { hotel: true } }, rider: true, customer: true },
   });
@@ -50,9 +51,7 @@ export default async function LiveDeliveryPage() {
                     </td>
                     <td className="font-mono">{o.customer.phone}</td>
                     <td>
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-[#DE9A34]/10 text-[#B87A1F]">
-                        {o.status}
-                      </span>
+                      <OrderStatusControl orderId={o.id} status={o.status} />
                     </td>
                   </tr>
                 );

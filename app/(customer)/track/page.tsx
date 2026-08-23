@@ -91,7 +91,12 @@ function TrackContent() {
           <br />
           Call support — no self-cancel
         </div>
-        <button className="bg-green text-white text-xs font-bold px-3 py-2 rounded-lg">📞 Call</button>
+        <a
+          href={`tel:${process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+919845000000"}`}
+          className="bg-green text-white text-xs font-bold px-3 py-2 rounded-lg"
+        >
+          📞 Call
+        </a>
       </div>
     </div>
   );

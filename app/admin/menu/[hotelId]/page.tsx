@@ -10,6 +10,7 @@ type MenuItem = {
   category: string;
   imageEmoji: string;
   imageUrl?: string | null;
+  available: boolean;
 };
 
 const CATEGORIES = ["Non-Veg", "Veg", "Drinks", "Snacks"];
@@ -94,6 +95,15 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
       alert(err.message || "Upload failed");
     }
     setEditImageUploading(false);
+  }
+
+  async function toggleAvailable(item: MenuItem) {
+    await fetch(`/api/menu/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ available: !item.available }),
+    });
+    load();
   }
 
   return (
@@ -200,7 +210,7 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
               </div>
             </div>
           ) : (
-            <div key={item.id} className="flex items-center gap-3 border-b border-line py-2">
+            <div key={item.id} className={`flex items-center gap-3 border-b border-line py-2 ${!item.available ? "opacity-50" : ""}`}>
               {item.imageUrl ? (
                 <img src={item.imageUrl} className="w-10 h-10 rounded-lg object-cover" alt="" />
               ) : (
@@ -213,6 +223,14 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
                 <p className="text-[11px] text-charcoalSoft">{item.category}</p>
               </div>
               <span className="text-sm font-bold">₹{item.price}</span>
+              <button
+                onClick={() => toggleAvailable(item)}
+                className={`text-[10px] font-bold px-2 py-1 rounded-full ml-2 ${
+                  item.available ? "bg-green/10 text-green" : "bg-chili/10 text-chili"
+                }`}
+              >
+                {item.available ? "In Stock" : "Sold Out"}
+              </button>
               <button
                 onClick={() => setEditingId(item.id)}
                 className="text-xs font-bold text-mustard ml-2"

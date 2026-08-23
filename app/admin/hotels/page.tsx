@@ -25,11 +25,17 @@ export default function AdminHotelsPage() {
   const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", phone: "", address: "" });
+  const [editForm, setEditForm] = useState({ name: "", phone: "", address: "", latitude: "", longitude: "" });
 
   function startEdit(hotel: Hotel) {
     setEditingId(hotel.id);
-    setEditForm({ name: hotel.name, phone: hotel.phone, address: hotel.address });
+    setEditForm({
+      name: hotel.name,
+      phone: hotel.phone,
+      address: hotel.address,
+      latitude: hotel.latitude != null ? String(hotel.latitude) : "",
+      longitude: hotel.longitude != null ? String(hotel.longitude) : "",
+    });
   }
 
   async function saveEdit(hotelId: string) {
@@ -37,10 +43,18 @@ export default function AdminHotelsPage() {
       alert("Name, phone, and address are required");
       return;
     }
+    const body: any = {
+      name: editForm.name,
+      phone: editForm.phone,
+      address: editForm.address,
+    };
+    if (editForm.latitude) body.latitude = parseFloat(editForm.latitude);
+    if (editForm.longitude) body.longitude = parseFloat(editForm.longitude);
+
     await fetch(`/api/hotels/${hotelId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editForm),
+      body: JSON.stringify(body),
     });
     setEditingId(null);
     loadHotels();
@@ -254,6 +268,23 @@ export default function AdminHotelsPage() {
                 value={editForm.address}
                 onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
               />
+              <p className="text-[10px] font-bold text-charcoalSoft mb-1">
+                Location (leave blank to keep as-is, or correct it manually)
+              </p>
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <input
+                  className="border border-line rounded-lg px-3 py-2 text-xs"
+                  placeholder="Latitude"
+                  value={editForm.latitude}
+                  onChange={(e) => setEditForm({ ...editForm, latitude: e.target.value })}
+                />
+                <input
+                  className="border border-line rounded-lg px-3 py-2 text-xs"
+                  placeholder="Longitude"
+                  value={editForm.longitude}
+                  onChange={(e) => setEditForm({ ...editForm, longitude: e.target.value })}
+                />
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => saveEdit(h.id)}

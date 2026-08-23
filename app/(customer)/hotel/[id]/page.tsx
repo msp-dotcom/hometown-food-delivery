@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
+import { haversineKm } from "@/lib/distance";
 
 type MenuItem = {
   id: string;
@@ -11,8 +12,19 @@ type MenuItem = {
   category: string;
   imageEmoji: string;
   imageUrl?: string | null;
+  available: boolean;
 };
-type Hotel = { id: string; name: string; address: string; imageUrl?: string | null; menuItems: MenuItem[] };
+type Hotel = {
+  id: string;
+  name: string;
+  address: string;
+  imageUrl?: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  menuItems: MenuItem[];
+};
+
+const MAX_COMBINE_KM = 2; // matches our finalized multi-hotel distance rule
 
 export default function HotelPage({ params }: { params: { id: string } }) {
   const [hotel, setHotel] = useState<Hotel | null>(null);
@@ -31,6 +43,39 @@ export default function HotelPage({ params }: { params: { id: string } }) {
   const categories = ["Non-Veg", "Veg", "Drinks", "Snacks"];
   const filtered = (cat: string) =>
     hotel.menuItems.filter((m) => m.category === cat && (filter === "all" || filter === cat));
+
+  async function handleAdd(m: MenuItem) {
+    // Multi-hotel distance rule: if the cart already has items from a different
+    // hotel, only allow combining if the two hotels are within our max distance.
+    const otherHotelId = items.find((i) => i.hotelId !== hotel!.id)?.hotelId;
+    if (otherHotelId) {
+      const res = await fetch(`/api/hotels?ids=${otherHotelId},${hotel!.id}`);
+      const both = await res.json();
+      const a = both.find((h: any) => h.id === otherHotelId);
+      const b = both.find((h: any) => h.id === hotel!.id);
+      if (!a?.latitude || !b?.latitude) {
+        alert(
+          "Can't combine with your current cart yet — one of the hotels doesn't have a location set. Place this as a separate order instead."
+        );
+        return;
+      }
+      const distanceKm = haversineKm(a.latitude, a.longitude, b.latitude, b.longitude);
+      if (distanceKm > MAX_COMBINE_KM) {
+        alert(
+          `This hotel is ${distanceKm.toFixed(1)} km from your other cart items — too far to combine into one delivery. Please place it as a separate order.`
+        );
+        return;
+      }
+    }
+
+    addItem({
+      menuItemId: m.id,
+      hotelId: hotel!.id,
+      hotelName: hotel!.name,
+      name: m.name,
+      price: m.price,
+    });
+  }
 
   return (
     <div className="pb-24">
@@ -67,7 +112,7 @@ export default function HotelPage({ params }: { params: { id: string } }) {
                 {catItems.map((m) => {
                   const inCart = items.find((i) => i.menuItemId === m.id);
                   return (
-                    <div key={m.id} className="w-28 shrink-0 border border-line rounded-xl overflow-hidden">
+                    <div key={m.id} className={`w-28 shrink-0 border border-line rounded-xl overflow-hidden ${!m.available ? "opacity-50" : ""}`}>
                       {m.imageUrl ? (
                         <img src={m.imageUrl} className="h-16 w-full object-cover" alt={m.name} />
                       ) : (
@@ -78,7 +123,9 @@ export default function HotelPage({ params }: { params: { id: string } }) {
                       <div className="p-2">
                         <p className="text-[11px] font-bold leading-tight mb-1">{m.name}</p>
                         <p className="text-[11px] font-bold text-charcoalSoft mb-1.5">₹{m.price}</p>
-                        {inCart ? (
+                        {!m.available ? (
+                          <p className="text-[10px] font-bold text-chili text-center">Sold Out</p>
+                        ) : inCart ? (
                           <div className="flex items-center justify-between bg-mustard rounded-md overflow-hidden">
                             <button
                               className="text-white font-bold px-2 py-0.5"
@@ -97,15 +144,7 @@ export default function HotelPage({ params }: { params: { id: string } }) {
                         ) : (
                           <button
                             className="w-full text-[11px] font-bold border border-mustard text-mustard rounded-md py-1"
-                            onClick={() =>
-                              addItem({
-                                menuItemId: m.id,
-                                hotelId: hotel.id,
-                                hotelName: hotel.name,
-                                name: m.name,
-                                price: m.price,
-                              })
-                            }
+                            onClick={() => handleAdd(m)}
                           >
                             Add
                           </button>
