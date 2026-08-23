@@ -24,6 +24,27 @@ export default function AdminHotelsPage() {
   const [newImageFile, setNewImageFile] = useState<File | null>(null);
   const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", phone: "", address: "" });
+
+  function startEdit(hotel: Hotel) {
+    setEditingId(hotel.id);
+    setEditForm({ name: hotel.name, phone: hotel.phone, address: hotel.address });
+  }
+
+  async function saveEdit(hotelId: string) {
+    if (!editForm.name || !editForm.phone || !editForm.address) {
+      alert("Name, phone, and address are required");
+      return;
+    }
+    await fetch(`/api/hotels/${hotelId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editForm),
+    });
+    setEditingId(null);
+    loadHotels();
+  }
 
   function loadHotels() {
     fetch("/api/hotels")
@@ -212,7 +233,43 @@ export default function AdminHotelsPage() {
       </div>
 
       <div className="space-y-2">
-        {hotels.map((h) => (
+        {hotels.map((h) =>
+          editingId === h.id ? (
+            <div key={h.id} className="border border-mustard rounded-xl p-3">
+              <input
+                className="w-full border border-line rounded-lg px-3 py-2 text-sm mb-2"
+                placeholder="Hotel name"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              />
+              <input
+                className="w-full border border-line rounded-lg px-3 py-2 text-sm mb-2"
+                placeholder="Phone"
+                value={editForm.phone}
+                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+              />
+              <input
+                className="w-full border border-line rounded-lg px-3 py-2 text-sm mb-3"
+                placeholder="Address"
+                value={editForm.address}
+                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => saveEdit(h.id)}
+                  className="bg-mustard text-white text-xs font-bold rounded-lg px-3 py-2"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setEditingId(null)}
+                  className="border border-line text-xs font-bold rounded-lg px-3 py-2"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
           <div key={h.id} className="flex items-center justify-between border border-line rounded-xl p-3">
             <div className="flex items-center gap-3">
               <label className="cursor-pointer">
@@ -258,8 +315,14 @@ export default function AdminHotelsPage() {
               >
                 {h.isOpen ? "Open" : "Closed"}
               </button>
+              <button
+                onClick={() => startEdit(h)}
+                className="text-xs font-bold text-mustard"
+              >
+                Edit
+              </button>
               <Link href={`/admin/menu/${h.id}`} className="text-xs font-bold text-mustard">
-                Edit menu →
+                Menu →
               </Link>
               <button
                 onClick={() => removeHotel(h)}
@@ -269,7 +332,8 @@ export default function AdminHotelsPage() {
               </button>
             </div>
           </div>
-        ))}
+          )
+        )}
       </div>
     </div>
   );

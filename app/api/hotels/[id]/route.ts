@@ -27,6 +27,9 @@ export async function PATCH(
   if (typeof body.latitude === "number") data.latitude = body.latitude;
   if (typeof body.longitude === "number") data.longitude = body.longitude;
   if (typeof body.imageUrl === "string") data.imageUrl = body.imageUrl;
+  if (typeof body.name === "string") data.name = body.name;
+  if (typeof body.phone === "string") data.phone = body.phone;
+  if (typeof body.address === "string") data.address = body.address;
 
   const hotel = await prisma.hotel.update({
     where: { id: params.id },
