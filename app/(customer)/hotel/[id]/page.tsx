@@ -78,22 +78,22 @@ export default function HotelPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="pb-24">
+    <div className="pb-28">
       {hotel.imageUrl ? (
-        <img src={hotel.imageUrl} className="h-24 w-full object-cover" alt={hotel.name} />
+        <img src={hotel.imageUrl} className="h-40 w-full object-cover" alt={hotel.name} />
       ) : (
-        <div className="h-24 bg-gradient-to-br from-mustard to-chili" />
+        <div className="h-40 bg-gradient-to-br from-mustard to-chili" />
       )}
-      <div className="px-4 -mt-4 bg-white rounded-t-2xl relative pt-4">
-        <h1 className="text-xl font-bold">{hotel.name}</h1>
-        <p className="text-xs text-charcoalSoft mb-3">{hotel.address}</p>
+      <div className="px-5 -mt-5 bg-white rounded-t-3xl relative pt-5">
+        <h1 className="text-2xl font-extrabold mb-1">{hotel.name}</h1>
+        <p className="text-xs text-charcoalSoft mb-5 leading-relaxed">{hotel.address}</p>
 
-        <div className="flex gap-2 overflow-x-auto mb-2">
+        <div className="flex gap-2 overflow-x-auto mb-3 -mx-5 px-5">
           {["all", ...categories].map((c) => (
             <button
               key={c}
               onClick={() => setFilter(c)}
-              className={`text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap ${
+              className={`text-xs font-bold px-4 py-2 rounded-full whitespace-nowrap flex-shrink-0 ${
                 filter === c ? "bg-charcoal text-white" : "bg-sand text-charcoalSoft"
               }`}
             >
@@ -106,36 +106,36 @@ export default function HotelPage({ params }: { params: { id: string } }) {
           const catItems = filtered(cat);
           if (catItems.length === 0) return null;
           return (
-            <div key={cat} className="mt-4">
-              <p className="text-sm font-bold mb-2">{cat}</p>
-              <div className="flex gap-3 overflow-x-auto pb-1">
+            <div key={cat} className="mt-7">
+              <p className="text-sm font-bold mb-3">{cat}</p>
+              <div className="flex gap-3.5 overflow-x-auto pb-2 -mx-5 px-5">
                 {catItems.map((m) => {
                   const inCart = items.find((i) => i.menuItemId === m.id);
                   return (
-                    <div key={m.id} className={`w-28 shrink-0 border border-line rounded-xl overflow-hidden ${!m.available ? "opacity-50" : ""}`}>
+                    <div key={m.id} className={`w-32 shrink-0 border border-line rounded-xl overflow-hidden ${!m.available ? "opacity-50" : ""}`}>
                       {m.imageUrl ? (
-                        <img src={m.imageUrl} className="h-16 w-full object-cover" alt={m.name} />
+                        <img src={m.imageUrl} className="h-20 w-full object-cover" alt={m.name} />
                       ) : (
-                        <div className="h-16 bg-gradient-to-br from-mustardLight to-chili flex items-center justify-center text-2xl text-white">
+                        <div className="h-20 bg-gradient-to-br from-mustardLight to-chili flex items-center justify-center text-2xl text-white">
                           {m.imageEmoji}
                         </div>
                       )}
-                      <div className="p-2">
-                        <p className="text-[11px] font-bold leading-tight mb-1">{m.name}</p>
-                        <p className="text-[11px] font-bold text-charcoalSoft mb-1.5">₹{m.price}</p>
+                      <div className="p-3">
+                        <p className="text-xs font-bold leading-snug mb-1.5">{m.name}</p>
+                        <p className="text-xs font-bold text-charcoalSoft mb-2">₹{m.price}</p>
                         {!m.available ? (
-                          <p className="text-[10px] font-bold text-chili text-center">Sold Out</p>
+                          <p className="text-[10px] font-bold text-chili text-center py-1">Sold Out</p>
                         ) : inCart ? (
-                          <div className="flex items-center justify-between bg-mustard rounded-md overflow-hidden">
+                          <div className="flex items-center justify-between bg-mustard rounded-lg overflow-hidden">
                             <button
-                              className="text-white font-bold px-2 py-0.5"
+                              className="text-white font-bold px-2.5 py-1"
                               onClick={() => changeQty(m.id, -1)}
                             >
                               −
                             </button>
                             <span className="text-white text-xs font-bold">{inCart.qty}</span>
                             <button
-                              className="text-white font-bold px-2 py-0.5"
+                              className="text-white font-bold px-2.5 py-1"
                               onClick={() => changeQty(m.id, 1)}
                             >
                               +
@@ -143,7 +143,7 @@ export default function HotelPage({ params }: { params: { id: string } }) {
                           </div>
                         ) : (
                           <button
-                            className="w-full text-[11px] font-bold border border-mustard text-mustard rounded-md py-1"
+                            className="w-full text-xs font-bold border border-mustard text-mustard rounded-lg py-1.5"
                             onClick={() => handleAdd(m)}
                           >
                             Add
@@ -162,7 +162,7 @@ export default function HotelPage({ params }: { params: { id: string } }) {
       {totals.count > 0 && (
         <button
           onClick={() => router.push("/cart")}
-          className="fixed bottom-16 left-4 right-4 max-w-md mx-auto bg-charcoal text-white rounded-xl px-4 py-3 flex justify-between items-center"
+          className="fixed bottom-[72px] left-4 right-4 max-w-md mx-auto bg-charcoal text-white rounded-xl px-5 py-3.5 flex justify-between items-center shadow-lg"
         >
           <span className="text-xs">{totals.count} items</span>
           <span className="text-sm font-bold text-mustardLight">₹{totals.subtotal} · View Cart →</span>

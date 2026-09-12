@@ -26,7 +26,7 @@ export default function LocationBar() {
     <div className="mb-3">
       <div
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between bg-sand rounded-xl px-3 py-2.5 cursor-pointer"
+        className="flex items-center justify-between bg-sand rounded-xl px-4 py-3 cursor-pointer"
       >
         <div className="flex items-center gap-2 text-sm font-semibold">
           📍 {selected ? `${selected.label} — ${selected.text}` : "Set your delivery location"}
@@ -35,7 +35,7 @@ export default function LocationBar() {
       </div>
 
       {open && (
-        <div className="border border-line rounded-xl mt-1.5 overflow-hidden shadow-md bg-white">
+        <div className="border border-line rounded-xl mt-2 overflow-hidden shadow-md bg-white">
           {addresses.map((a) => (
             <div
               key={a.id}
@@ -43,7 +43,7 @@ export default function LocationBar() {
                 selectAddress(a.id);
                 setOpen(false);
               }}
-              className="px-4 py-2.5 text-sm border-b border-line cursor-pointer hover:bg-sand"
+              className="px-4 py-3 text-sm border-b border-line cursor-pointer hover:bg-sand"
             >
               <b>{a.label}</b> — {a.text}
             </div>
@@ -51,28 +51,28 @@ export default function LocationBar() {
 
           <div
             onClick={useCurrentGPS}
-            className="px-4 py-2.5 text-sm border-b border-line cursor-pointer hover:bg-sand text-mustard font-semibold"
+            className="px-4 py-3 text-sm border-b border-line cursor-pointer hover:bg-sand text-mustard font-semibold"
           >
             {locating ? "Getting location…" : "🎯 Use current GPS location"}
           </div>
 
           {addingManual ? (
-            <div className="p-3">
+            <div className="p-4">
               <input
-                className="w-full border border-line rounded-lg px-3 py-2 text-xs mb-2"
+                className="w-full border border-line rounded-lg px-3 py-2.5 text-xs mb-2.5"
                 placeholder="Label (e.g. Home, Work)"
                 value={manualLabel}
                 onChange={(e) => setManualLabel(e.target.value)}
               />
               <input
-                className="w-full border border-line rounded-lg px-3 py-2 text-xs mb-2"
+                className="w-full border border-line rounded-lg px-3 py-2.5 text-xs mb-3"
                 placeholder="Address"
                 value={manualText}
                 onChange={(e) => setManualText(e.target.value)}
               />
               <button
                 onClick={saveManual}
-                className="w-full bg-mustard text-white text-xs font-bold rounded-lg py-2"
+                className="w-full bg-mustard text-white text-xs font-bold rounded-lg py-2.5"
               >
                 Save Address
               </button>
@@ -80,7 +80,7 @@ export default function LocationBar() {
           ) : (
             <div
               onClick={() => setAddingManual(true)}
-              className="px-4 py-2.5 text-sm cursor-pointer hover:bg-sand font-semibold text-mustard"
+              className="px-4 py-3 text-sm cursor-pointer hover:bg-sand font-semibold text-mustard"
             >
               + Add new address
             </div>

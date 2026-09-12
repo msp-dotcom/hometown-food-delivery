@@ -31,20 +31,20 @@ export default function CategoryPage({ params }: { params: { name: string } }) {
 
   return (
     <div className="pb-24">
-      <div className="px-4 pt-6">
-        <button onClick={() => router.back()} className="text-xs text-charcoalSoft mb-3">
+      <div className="px-5 pt-7">
+        <button onClick={() => router.back()} className="text-xs text-charcoalSoft mb-4">
           ← Back
         </button>
-        <p className="text-xs font-bold text-mustard uppercase mb-1">Category</p>
-        <h1 className="text-2xl font-extrabold mb-1">{category}</h1>
-        <p className="text-xs text-charcoalSoft mb-4">Items from every open hotel nearby</p>
+        <p className="text-xs font-bold text-mustard uppercase mb-1.5">Category</p>
+        <h1 className="text-2xl font-extrabold mb-1.5">{category}</h1>
+        <p className="text-xs text-charcoalSoft mb-6 leading-relaxed">Items from every open hotel nearby</p>
 
         {loading ? (
           <p className="text-sm text-charcoalSoft">Loading…</p>
         ) : items.length === 0 ? (
           <p className="text-sm text-charcoalSoft">No {category} items available right now.</p>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {items.map((item) => {
               const inCart = cartItems.find((i) => i.menuItemId === item.id);
               return (

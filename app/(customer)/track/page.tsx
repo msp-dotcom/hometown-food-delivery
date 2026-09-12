@@ -56,21 +56,21 @@ function TrackContent() {
   const hotelNames = Array.from(new Set(order.items.map((i: any) => i.hotel.name)));
 
   return (
-    <div className="px-4 pt-8">
-      <div className="text-center mb-6">
-        <p className="text-xs text-charcoalSoft">
+    <div className="px-5 pt-9 pb-8">
+      <div className="text-center mb-9">
+        <p className="text-xs text-charcoalSoft leading-relaxed">
           ORDER <b>#{order.id.slice(-6).toUpperCase()}</b> · {hotelNames.join(" + ")}
         </p>
-        <h1 className="text-lg font-bold mt-1">
+        <h1 className="text-xl font-extrabold mt-2">
           {order.deliveredAt ? "Delivered" : LABELS[order.status]}
         </h1>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {STEPS.map((step, idx) => (
-          <div key={step} className="flex gap-3 items-center">
+          <div key={step} className="flex gap-3.5 items-center">
             <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
                 idx < currentIndex
                   ? "bg-green text-white"
                   : idx === currentIndex
@@ -85,15 +85,15 @@ function TrackContent() {
         ))}
       </div>
 
-      <div className="bg-sand rounded-xl p-3 mt-6 flex justify-between items-center">
-        <div className="text-xs text-charcoalSoft">
+      <div className="bg-sand rounded-xl p-4 mt-9 flex justify-between items-center gap-3">
+        <div className="text-xs text-charcoalSoft leading-relaxed">
           Need to change or cancel?
           <br />
           Call support — no self-cancel
         </div>
         <a
           href={`tel:${process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+919845000000"}`}
-          className="bg-green text-white text-xs font-bold px-3 py-2 rounded-lg"
+          className="bg-green text-white text-xs font-bold px-4 py-2.5 rounded-lg flex-shrink-0"
         >
           📞 Call
         </a>
