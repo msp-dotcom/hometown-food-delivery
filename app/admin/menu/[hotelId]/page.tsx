@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { uploadMenuImage } from "@/lib/upload-image";
+import ImageLibraryPicker from "../../components/ImageLibraryPicker";
 
 type MenuItem = {
   id: string;
@@ -24,6 +25,7 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editImageUploading, setEditImageUploading] = useState(false);
+  const [libraryOpenFor, setLibraryOpenFor] = useState<"new" | "edit" | null>(null);
 
   function load() {
     fetch(`/api/hotels/${params.hotelId}`)
@@ -47,7 +49,7 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
       alert("Name and price are required");
       return;
     }
-    let imageUrl: string | undefined;
+    let imageUrl: string | undefined = newImagePreview && !newImageFile ? newImagePreview : undefined;
     if (newImageFile) {
       setUploading(true);
       try {
@@ -85,7 +87,6 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
     try {
       const imageUrl = await uploadMenuImage(file);
       setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, imageUrl } : i)));
-      // Save immediately — a photo upload should never need a separate "Save" click to take effect
       await fetch(`/api/menu/${item.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -95,6 +96,21 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
       alert(err.message || "Upload failed");
     }
     setEditImageUploading(false);
+  }
+
+  async function chooseFromLibrary(url: string) {
+    if (libraryOpenFor === "new") {
+      setNewImagePreview(url);
+      setNewImageFile(null);
+    } else if (libraryOpenFor === "edit" && editingId) {
+      setItems((prev) => prev.map((i) => (i.id === editingId ? { ...i, imageUrl: url } : i)));
+      await fetch(`/api/menu/${editingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: url }),
+      });
+    }
+    setLibraryOpenFor(null);
   }
 
   async function toggleAvailable(item: MenuItem) {
@@ -114,17 +130,25 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
       <div className="border border-line rounded-xl p-3 mb-5">
         <p className="text-sm font-bold mb-2">Add item</p>
 
-        <label className="flex items-center gap-3 border border-dashed border-line rounded-lg p-3 mb-2 cursor-pointer">
-          {newImagePreview ? (
-            <img src={newImagePreview} className="w-12 h-12 rounded-lg object-cover" alt="" />
-          ) : (
-            <div className="w-12 h-12 rounded-lg bg-sand flex items-center justify-center text-lg">📷</div>
-          )}
-          <span className="text-xs text-charcoalSoft">
-            {newImageFile ? newImageFile.name : "Tap to add a photo (optional)"}
-          </span>
-          <input type="file" accept="image/*" className="hidden" onChange={pickNewImage} />
-        </label>
+        <div className="flex items-center gap-3 border border-dashed border-line rounded-lg p-3 mb-2">
+          <label className="flex items-center gap-3 flex-1 cursor-pointer">
+            {newImagePreview ? (
+              <img src={newImagePreview} className="w-12 h-12 rounded-lg object-cover" alt="" />
+            ) : (
+              <div className="w-12 h-12 rounded-lg bg-sand flex items-center justify-center text-lg">📷</div>
+            )}
+            <span className="text-xs text-charcoalSoft">
+              {newImageFile ? newImageFile.name : newImagePreview ? "From library" : "Upload new photo"}
+            </span>
+            <input type="file" accept="image/*" className="hidden" onChange={pickNewImage} />
+          </label>
+          <button
+            onClick={() => setLibraryOpenFor("new")}
+            className="text-[11px] font-bold text-mustard whitespace-nowrap"
+          >
+            📚 Choose existing
+          </button>
+        </div>
 
         <input
           className="w-full border border-line rounded-lg px-3 py-2 text-sm mb-2"
@@ -160,24 +184,32 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
         {items.map((item) =>
           editingId === item.id ? (
             <div key={item.id} className="border border-mustard rounded-xl p-3">
-              <label className="flex items-center gap-3 border border-dashed border-line rounded-lg p-3 mb-2 cursor-pointer">
-                {item.imageUrl ? (
-                  <img src={item.imageUrl} className="w-12 h-12 rounded-lg object-cover" alt="" />
-                ) : (
-                  <div className="w-12 h-12 rounded-lg bg-sand flex items-center justify-center text-lg">
-                    {item.imageEmoji}
-                  </div>
-                )}
-                <span className="text-xs text-charcoalSoft">
-                  {editImageUploading ? "Uploading…" : "Tap to replace photo"}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => pickEditImage(item, e)}
-                />
-              </label>
+              <div className="flex items-center gap-3 border border-dashed border-line rounded-lg p-3 mb-2">
+                <label className="flex items-center gap-3 flex-1 cursor-pointer">
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} className="w-12 h-12 rounded-lg object-cover" alt="" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-sand flex items-center justify-center text-lg">
+                      {item.imageEmoji}
+                    </div>
+                  )}
+                  <span className="text-xs text-charcoalSoft">
+                    {editImageUploading ? "Uploading…" : "Upload new photo"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => pickEditImage(item, e)}
+                  />
+                </label>
+                <button
+                  onClick={() => setLibraryOpenFor("edit")}
+                  className="text-[11px] font-bold text-mustard whitespace-nowrap"
+                >
+                  📚 Choose existing
+                </button>
+              </div>
               <input
                 className="w-full border border-line rounded-lg px-3 py-2 text-sm mb-2"
                 value={item.name}
@@ -241,6 +273,10 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
           )
         )}
       </div>
+
+      {libraryOpenFor && (
+        <ImageLibraryPicker onSelect={chooseFromLibrary} onClose={() => setLibraryOpenFor(null)} />
+      )}
     </div>
   );
 }

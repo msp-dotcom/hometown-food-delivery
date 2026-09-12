@@ -1,0 +1,1 @@
+DELETE FROM "OrderItem"; DELETE FROM "Order"; DELETE FROM "TableQR"; DELETE FROM "MenuItem"; DELETE FROM "Hotel";

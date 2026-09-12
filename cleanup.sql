@@ -1,0 +1,1 @@
+DELETE FROM "OrderItem" WHERE "hotelId" = 'cmsw12zi20000cd33db5ted7k'; DELETE FROM "MenuItem" WHERE "hotelId" = 'cmsw12zi20000cd33db5ted7k'; DELETE FROM "Hotel" WHERE "id" = 'cmsw12zi20000cd33db5ted7k';
