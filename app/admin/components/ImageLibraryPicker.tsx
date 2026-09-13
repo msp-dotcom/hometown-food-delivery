@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type LibraryImage = { name: string; label: string; url: string };
+type LibraryImage = { name: string; category: string; label: string; url: string };
 
 export default function ImageLibraryPicker({
   onSelect,
@@ -14,6 +14,7 @@ export default function ImageLibraryPicker({
   const [images, setImages] = useState<LibraryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
     fetch("/api/admin/image-library")
@@ -24,7 +25,13 @@ export default function ImageLibraryPicker({
       });
   }, []);
 
-  const filtered = images.filter((i) => i.label.toLowerCase().includes(search.toLowerCase()));
+  const categories = ["All", ...Array.from(new Set(images.map((i) => i.category))).sort()];
+
+  const filtered = images.filter(
+    (i) =>
+      (activeCategory === "All" || i.category === activeCategory) &&
+      i.label.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -40,11 +47,24 @@ export default function ImageLibraryPicker({
             </button>
           </div>
           <input
-            className="w-full border border-[#E4DFD1] rounded-lg px-3 py-2 text-xs"
+            className="w-full border border-[#E4DFD1] rounded-lg px-3 py-2 text-xs mb-3"
             placeholder="Search by name…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
+            {categories.map((c) => (
+              <button
+                key={c}
+                onClick={() => setActiveCategory(c)}
+                className={`text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 ${
+                  activeCategory === c ? "bg-[#141C22] text-white" : "bg-[#F3F4F6] text-[#68706B]"
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="p-4 overflow-y-auto flex-1">
@@ -52,8 +72,8 @@ export default function ImageLibraryPicker({
             <p className="text-xs text-[#68706B]">Loading images…</p>
           ) : filtered.length === 0 ? (
             <p className="text-xs text-[#68706B]">
-              No images found. Upload some to the "menu-images" bucket first (via cmd or the upload
-              button), then they'll show up here.
+              No images found in this category. Upload some via the upload-images.bat script first, then
+              they'll show up here.
             </p>
           ) : (
             <div className="grid grid-cols-3 gap-3">
