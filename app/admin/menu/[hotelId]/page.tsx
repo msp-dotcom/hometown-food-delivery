@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { uploadMenuImage } from "@/lib/upload-image";
 import ImageLibraryPicker from "../../components/ImageLibraryPicker";
+import BulkAddFromLibrary from "./BulkAddFromLibrary";
 
 type MenuItem = {
   id: string;
@@ -26,6 +27,7 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editImageUploading, setEditImageUploading] = useState(false);
   const [libraryOpenFor, setLibraryOpenFor] = useState<"new" | "edit" | null>(null);
+  const [bulkAddOpen, setBulkAddOpen] = useState(false);
 
   function load() {
     fetch(`/api/hotels/${params.hotelId}`)
@@ -125,7 +127,15 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
   return (
     <div className="px-4 pt-6">
       <p className="text-xs font-bold text-mustard uppercase mb-1">Digital Menu · {hotelName}</p>
-      <h1 className="text-xl font-bold mb-4">Menu Items</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-xl font-bold">Menu Items</h1>
+        <button
+          onClick={() => setBulkAddOpen(true)}
+          className="text-xs font-bold text-white bg-charcoal rounded-lg px-3 py-2"
+        >
+          📚 Bulk Add from Library
+        </button>
+      </div>
 
       <div className="border border-line rounded-xl p-3 mb-5">
         <p className="text-sm font-bold mb-2">Add item</p>
@@ -276,6 +286,17 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
 
       {libraryOpenFor && (
         <ImageLibraryPicker onSelect={chooseFromLibrary} onClose={() => setLibraryOpenFor(null)} />
+      )}
+
+      {bulkAddOpen && (
+        <BulkAddFromLibrary
+          hotelId={params.hotelId}
+          onClose={() => setBulkAddOpen(false)}
+          onDone={() => {
+            setBulkAddOpen(false);
+            load();
+          }}
+        />
       )}
     </div>
   );
