@@ -15,12 +15,11 @@ type MenuItem = {
   available: boolean;
 };
 
-const CATEGORIES = ["Non-Veg", "Veg", "Drinks", "Snacks"];
-
 export default function AdminMenuPage({ params }: { params: { hotelId: string } }) {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [hotelName, setHotelName] = useState("");
-  const [form, setForm] = useState({ name: "", price: "", category: "Non-Veg" });
+  const [form, setForm] = useState({ name: "", price: "", category: "" });
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [newImageFile, setNewImageFile] = useState<File | null>(null);
   const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -35,6 +34,23 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
       .then((h) => {
         setHotelName(h.name);
         setItems(h.menuItems);
+        const existing = new Set<string>(h.menuItems.map((i: MenuItem) => i.category));
+        setAvailableCategories((prev) => {
+          const merged = new Set([...prev, ...existing]);
+          return Array.from(merged).sort();
+        });
+        if (!form.category && h.menuItems.length > 0) {
+          setForm((f) => ({ ...f, category: h.menuItems[0].category }));
+        }
+      });
+    // Also pull category names from the image library, so folders you've
+    // uploaded but haven't used as a menu item yet still show up as options.
+    fetch("/api/admin/image-library")
+      .then((r) => r.json())
+      .then((imgs) => {
+        if (!Array.isArray(imgs)) return;
+        const fromLibrary: string[] = Array.from(new Set(imgs.map((i: any) => i.category)));
+        setAvailableCategories((prev) => Array.from(new Set([...prev, ...fromLibrary])).sort());
       });
   }
   useEffect(load, [params.hotelId]);
@@ -47,8 +63,8 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
   }
 
   async function addItem() {
-    if (!form.name || !form.price) {
-      alert("Name and price are required");
+    if (!form.name || !form.price || !form.category) {
+      alert("Name, price, and category are required");
       return;
     }
     let imageUrl: string | undefined = newImagePreview && !newImageFile ? newImagePreview : undefined;
@@ -172,15 +188,18 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
           value={form.price}
           onChange={(e) => setForm({ ...form, price: e.target.value })}
         />
-        <select
+        <input
           className="w-full border border-line rounded-lg px-3 py-2 text-sm mb-3"
+          placeholder="Category (e.g. Breakfast, Fast-Food)"
+          list="menu-categories"
           value={form.category}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c}>{c}</option>
+        />
+        <datalist id="menu-categories">
+          {availableCategories.map((c) => (
+            <option key={c} value={c} />
           ))}
-        </select>
+        </datalist>
         <button
           disabled={uploading}
           onClick={addItem}
@@ -234,6 +253,15 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
                   setItems((prev) =>
                     prev.map((i) => (i.id === item.id ? { ...i, price: Number(e.target.value) } : i))
                   )
+                }
+              />
+              <input
+                className="w-full border border-line rounded-lg px-3 py-2 text-sm mb-2"
+                placeholder="Category"
+                list="menu-categories"
+                value={item.category}
+                onChange={(e) =>
+                  setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, category: e.target.value } : i)))
                 }
               />
               <div className="flex gap-2">

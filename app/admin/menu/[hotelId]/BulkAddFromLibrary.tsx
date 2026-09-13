@@ -17,7 +17,6 @@ export default function BulkAddFromLibrary({
   const [loading, setLoading] = useState(true);
   const [libraryCategory, setLibraryCategory] = useState("All");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [menuCategory, setMenuCategory] = useState("Non-Veg");
   const [defaultPrice, setDefaultPrice] = useState("100");
   const [adding, setAdding] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -66,7 +65,7 @@ export default function BulkAddFromLibrary({
         body: JSON.stringify({
           name: img.label,
           price,
-          category: menuCategory,
+          category: img.category,
           imageUrl: img.url,
         }),
       });
@@ -91,28 +90,16 @@ export default function BulkAddFromLibrary({
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <div>
-              <label className="text-[10px] font-bold text-charcoalSoft block mb-1">Menu category (applies to all selected)</label>
-              <select
-                className="w-full border border-line rounded-lg px-2 py-2 text-xs"
-                value={menuCategory}
-                onChange={(e) => setMenuCategory(e.target.value)}
-              >
-                <option>Non-Veg</option>
-                <option>Veg</option>
-                <option>Drinks</option>
-                <option>Snacks</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[10px] font-bold text-charcoalSoft block mb-1">Default price (₹) — edit later</label>
-              <input
-                className="w-full border border-line rounded-lg px-2 py-2 text-xs"
-                value={defaultPrice}
-                onChange={(e) => setDefaultPrice(e.target.value)}
-              />
-            </div>
+          <div className="mb-3">
+            <label className="text-[10px] font-bold text-charcoalSoft block mb-1">Default price (₹) — edit later per item</label>
+            <input
+              className="w-full border border-line rounded-lg px-2 py-2 text-xs"
+              value={defaultPrice}
+              onChange={(e) => setDefaultPrice(e.target.value)}
+            />
+            <p className="text-[10px] text-charcoalSoft mt-1.5">
+              Each item's category is taken automatically from the folder you uploaded it under.
+            </p>
           </div>
 
           <div className="flex gap-1.5 overflow-x-auto pb-1">

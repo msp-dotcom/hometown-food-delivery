@@ -6,6 +6,13 @@ export const dynamic = "force-dynamic"; // always show live hotel data, not a ca
 
 export default async function HomePage() {
   const hotels = await prisma.hotel.findMany({ orderBy: { createdAt: "desc" } });
+  const categoryRows = await prisma.menuItem.findMany({
+    where: { available: true, hotel: { isOpen: true } },
+    select: { category: true },
+    distinct: ["category"],
+    orderBy: { category: "asc" },
+  });
+  const categories = categoryRows.map((c) => c.category);
 
   return (
     <div className="px-5 pt-7 pb-2">
@@ -15,24 +22,22 @@ export default async function HomePage() {
       <LocationBar />
       <h1 className="text-3xl font-extrabold mb-7 mt-5 tracking-tight leading-tight">Hungry?</h1>
 
-      <p className="text-sm font-bold mb-3">Categories</p>
-      <div className="flex gap-2.5 overflow-x-auto mb-8 pb-1 -mx-5 px-5">
-        {[
-          { name: "Non-Veg", emoji: "🍛" },
-          { name: "Veg", emoji: "🥗" },
-          { name: "Drinks", emoji: "🥤" },
-          { name: "Snacks", emoji: "🥟" },
-        ].map((c) => (
-          <Link
-            key={c.name}
-            href={`/category/${encodeURIComponent(c.name)}`}
-            className="flex-shrink-0 bg-sand rounded-xl px-5 py-3 text-center min-w-[72px]"
-          >
-            <div className="text-2xl mb-1">{c.emoji}</div>
-            <div className="text-[11px] font-bold">{c.name}</div>
-          </Link>
-        ))}
-      </div>
+      {categories.length > 0 && (
+        <>
+          <p className="text-sm font-bold mb-3">Categories</p>
+          <div className="flex gap-2.5 overflow-x-auto mb-8 pb-1 -mx-5 px-5">
+            {categories.map((c) => (
+              <Link
+                key={c}
+                href={`/category/${encodeURIComponent(c)}`}
+                className="flex-shrink-0 border border-line bg-white rounded-full px-5 py-2.5 text-xs font-bold text-charcoal hover:border-mustard hover:text-mustard transition-colors"
+              >
+                {c}
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
 
       <p className="text-sm font-bold mb-3">Hotels near you</p>
       <div className="space-y-5 pb-4">

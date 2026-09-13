@@ -40,7 +40,7 @@ export default function HotelPage({ params }: { params: { id: string } }) {
 
   if (!hotel) return <p className="p-6 text-sm text-charcoalSoft">Loading menu…</p>;
 
-  const categories = ["Non-Veg", "Veg", "Drinks", "Snacks"];
+  const categories = Array.from(new Set(hotel.menuItems.map((m) => m.category))).sort();
   const filtered = (cat: string) =>
     hotel.menuItems.filter((m) => m.category === cat && (filter === "all" || filter === cat));
 
