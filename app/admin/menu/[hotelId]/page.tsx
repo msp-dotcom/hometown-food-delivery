@@ -36,7 +36,7 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
         setItems(h.menuItems);
         const existing = new Set<string>(h.menuItems.map((i: MenuItem) => i.category));
         setAvailableCategories((prev) => {
-          const merged = new Set([...prev, ...existing]);
+          const merged = new Set(prev.concat(Array.from(existing)));
           return Array.from(merged).sort();
         });
         if (!form.category && h.menuItems.length > 0) {
@@ -50,7 +50,7 @@ export default function AdminMenuPage({ params }: { params: { hotelId: string } 
       .then((imgs) => {
         if (!Array.isArray(imgs)) return;
         const fromLibrary: string[] = Array.from(new Set(imgs.map((i: any) => i.category)));
-        setAvailableCategories((prev) => Array.from(new Set([...prev, ...fromLibrary])).sort());
+        setAvailableCategories((prev) => Array.from(new Set(prev.concat(fromLibrary))).sort());
       });
   }
   useEffect(load, [params.hotelId]);
