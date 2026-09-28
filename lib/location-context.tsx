@@ -15,7 +15,7 @@ type LocationContextType = {
   selected: SavedAddress | null;
   selectAddress: (id: string) => void;
   addAddress: (label: string, text: string, lat?: number, lng?: number) => void;
-  useCurrentGPS: () => void;
+  useCurrentGPS: () => Promise<void>;
   locating: boolean;
 };
 
@@ -55,28 +55,33 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     setSelectedId(id);
   }
 
-  function useCurrentGPS() {
-    if (!navigator.geolocation) {
-      alert("Location isn't available in this browser");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        addAddress(
-          "Current Location",
-          `GPS location (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`,
-          pos.coords.latitude,
-          pos.coords.longitude
-        );
-        setLocating(false);
-      },
-      () => {
-        alert("Couldn't get your location");
-        setLocating(false);
-      },
-      { timeout: 10000 }
-    );
+  function useCurrentGPS(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        alert("Location isn't available in this browser");
+        resolve();
+        return;
+      }
+      setLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          addAddress(
+            "Current Location",
+            `GPS location (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`,
+            pos.coords.latitude,
+            pos.coords.longitude
+          );
+          setLocating(false);
+          resolve();
+        },
+        () => {
+          alert("Couldn't get your location");
+          setLocating(false);
+          resolve();
+        },
+        { timeout: 10000 }
+      );
+    });
   }
 
   const selected = addresses.find((a) => a.id === selectedId) || null;

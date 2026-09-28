@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import AssignRiderSelect from "./AssignRiderSelect";
 import AutoRefresh from "../AutoRefresh";
 import OrderStatusControl from "./OrderStatusControl";
+import FeeAdjuster from "./FeeAdjuster";
+import { mapsLink } from "@/lib/distance";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +35,7 @@ export default async function LiveDeliveryPage() {
                 <th>Placed</th>
                 <th>Rider</th>
                 <th>Customer</th>
+                <th>Fee</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -49,7 +52,22 @@ export default async function LiveDeliveryPage() {
                         <AssignRiderSelect orderId={o.id} riders={riders} />
                       )}
                     </td>
-                    <td className="font-mono">{o.customer.phone}</td>
+                    <td className="font-mono">
+                      {o.customer.phone}
+                      {o.customerLat && o.customerLng && (
+                        <a
+                          href={mapsLink(o.customerLat, o.customerLng)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-[#B87A1F] font-bold no-underline"
+                        >
+                          📍 View on map
+                        </a>
+                      )}
+                    </td>
+                    <td>
+                      <FeeAdjuster orderId={o.id} currentFee={o.deliveryFee} />
+                    </td>
                     <td>
                       <OrderStatusControl orderId={o.id} status={o.status} />
                     </td>

@@ -21,7 +21,6 @@ model Hotel {
   address     String
   latitude    Float?
   longitude   Float?
-  imageUrl    String?
   isOpen      Boolean    @default(true)
   createdAt   DateTime   @default(now())
   menuItems   MenuItem[]
@@ -37,7 +36,6 @@ model MenuItem {
   price       Int
   category    String      // Veg | Non-Veg | Drinks | Snacks
   imageEmoji  String      @default("🍽")
-  imageUrl    String?     // real uploaded photo, falls back to imageEmoji if not set
   available   Boolean     @default(true)
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]
@@ -79,6 +77,8 @@ model Order {
   // PLACED -> ACCEPTED -> PREPARING -> READY -> PICKED_UP -> DELIVERED
   paymentMethod   String      @default("COD")   // COD | ONLINE
   deliveryAddress String
+  customerLat     Float?
+  customerLng     Float?
   subtotal        Int
   gst             Int
   deliveryFee     Int

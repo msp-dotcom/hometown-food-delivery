@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { mapsLink } from "@/lib/distance";
 
 type Rider = { id: string; name: string; phone: string; available: boolean };
 
@@ -154,9 +155,10 @@ export default function RiderPage() {
           <p className="text-[10px] text-[#68706B] mb-1">
             ORDER <b className="text-[#1B2126]">#{order.id.slice(-6).toUpperCase()}</b>
           </p>
-          <p className="text-sm font-extrabold mb-3">
+          <p className="text-sm font-extrabold mb-1">
             {Array.from(new Set(order.items.map((i: any) => i.hotel.name))).join(" → ")} → Customer
           </p>
+          <p className="text-xs text-[#68706B] mb-3">{order.deliveryAddress}</p>
 
           <div className="text-xs text-[#68706B] mb-4">
             {order.items.map((i: any) => (
@@ -165,6 +167,21 @@ export default function RiderPage() {
               </div>
             ))}
           </div>
+
+          {order.customerLat && order.customerLng ? (
+            <a
+              href={mapsLink(order.customerLat, order.customerLng)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-center border border-[#DE9A34] text-[#B87A1F] font-bold rounded-lg py-2.5 text-sm mb-3"
+            >
+              📍 Open Customer Location
+            </a>
+          ) : (
+            <p className="text-[10px] text-[#68706B] mb-3">
+              Customer hasn't shared a precise location yet — use the delivery address above.
+            </p>
+          )}
 
           {order.status === "ACCEPTED" && (
             <button

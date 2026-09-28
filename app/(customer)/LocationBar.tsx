@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "@/lib/location-context";
 
 export default function LocationBar() {
@@ -9,6 +9,24 @@ export default function LocationBar() {
   const [addingManual, setAddingManual] = useState(false);
   const [manualLabel, setManualLabel] = useState("");
   const [manualText, setManualText] = useState("");
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Close the dropdown if the person taps anywhere outside it
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setAddingManual(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  async function handleUseGPS() {
+    await useCurrentGPS();
+    setOpen(false);
+  }
 
   function saveManual() {
     if (!manualLabel || !manualText) {
@@ -23,19 +41,21 @@ export default function LocationBar() {
   }
 
   return (
-    <div className="mb-3">
+    <div className="mb-3" ref={wrapperRef}>
       <div
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between bg-sand rounded-xl px-4 py-3 cursor-pointer"
+        className="flex items-center justify-between bg-sand rounded-xl px-4 py-3 cursor-pointer transition-colors hover:bg-line/40"
       >
-        <div className="flex items-center gap-2 text-sm font-semibold">
+        <div className="flex items-center gap-2 text-sm font-semibold truncate pr-2">
           📍 {selected ? `${selected.label} — ${selected.text}` : "Set your delivery location"}
         </div>
-        <span className="text-xs text-charcoalSoft">{open ? "▲" : "▼"}</span>
+        <span className="text-xs text-charcoalSoft flex-shrink-0 transition-transform" style={{ transform: open ? "rotate(180deg)" : "none" }}>
+          ▼
+        </span>
       </div>
 
       {open && (
-        <div className="border border-line rounded-xl mt-2 overflow-hidden shadow-md bg-white">
+        <div className="border border-line rounded-xl mt-2 overflow-hidden shadow-lg bg-white">
           {addresses.map((a) => (
             <div
               key={a.id}
@@ -43,15 +63,15 @@ export default function LocationBar() {
                 selectAddress(a.id);
                 setOpen(false);
               }}
-              className="px-4 py-3 text-sm border-b border-line cursor-pointer hover:bg-sand"
+              className="px-4 py-3 text-sm border-b border-line cursor-pointer hover:bg-sand transition-colors"
             >
               <b>{a.label}</b> — {a.text}
             </div>
           ))}
 
           <div
-            onClick={useCurrentGPS}
-            className="px-4 py-3 text-sm border-b border-line cursor-pointer hover:bg-sand text-mustard font-semibold"
+            onClick={handleUseGPS}
+            className="px-4 py-3 text-sm border-b border-line cursor-pointer hover:bg-sand transition-colors text-mustard font-semibold"
           >
             {locating ? "Getting location…" : "🎯 Use current GPS location"}
           </div>
@@ -63,6 +83,7 @@ export default function LocationBar() {
                 placeholder="Label (e.g. Home, Work)"
                 value={manualLabel}
                 onChange={(e) => setManualLabel(e.target.value)}
+                autoFocus
               />
               <input
                 className="w-full border border-line rounded-lg px-3 py-2.5 text-xs mb-3"
@@ -70,17 +91,25 @@ export default function LocationBar() {
                 value={manualText}
                 onChange={(e) => setManualText(e.target.value)}
               />
-              <button
-                onClick={saveManual}
-                className="w-full bg-mustard text-white text-xs font-bold rounded-lg py-2.5"
-              >
-                Save Address
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={saveManual}
+                  className="flex-1 bg-mustard text-white text-xs font-bold rounded-lg py-2.5"
+                >
+                  Save Address
+                </button>
+                <button
+                  onClick={() => setAddingManual(false)}
+                  className="border border-line text-xs font-bold rounded-lg px-4 py-2.5"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           ) : (
             <div
               onClick={() => setAddingManual(true)}
-              className="px-4 py-3 text-sm cursor-pointer hover:bg-sand font-semibold text-mustard"
+              className="px-4 py-3 text-sm cursor-pointer hover:bg-sand transition-colors font-semibold text-mustard"
             >
               + Add new address
             </div>

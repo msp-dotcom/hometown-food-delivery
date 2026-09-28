@@ -79,6 +79,25 @@ export default function ImageLibraryAdminPage() {
     load();
   }
 
+  async function deleteAll() {
+    if (
+      !confirm(
+        `Delete ALL ${images.length} images in the library? This cannot be undone — you'll need to re-upload everything.`
+      )
+    )
+      return;
+    if (!confirm("Are you absolutely sure? This is permanent.")) return;
+
+    const res = await fetch("/api/admin/image-library/delete-all", { method: "POST" });
+    const data = await res.json();
+    if (res.ok) {
+      alert(`Deleted ${data.deleted} images.`);
+      load();
+    } else {
+      alert(data.error || "Could not delete all images");
+    }
+  }
+
   const categories = ["All", ...Array.from(new Set(images.map((i) => i.category))).sort()];
   const filtered = images.filter((i) => filterCategory === "All" || i.category === filterCategory);
 
@@ -125,6 +144,14 @@ export default function ImageLibraryAdminPage() {
       <div className="bg-white border border-[#E4DFD1] rounded-xl p-5">
         <div className="flex justify-between items-center mb-3">
           <p className="text-sm font-extrabold">Current Images <span className="text-[#68706B] font-normal text-xs">({filtered.length})</span></p>
+          {images.length > 0 && (
+            <button
+              onClick={deleteAll}
+              className="text-[11px] font-bold text-[#B4483A] border border-[#B4483A] rounded-lg px-3 py-1.5"
+            >
+              🗑 Delete All ({images.length})
+            </button>
+          )}
         </div>
 
         <div className="flex gap-1.5 overflow-x-auto pb-3 mb-1">

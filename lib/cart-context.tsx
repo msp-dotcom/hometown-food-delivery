@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 export type CartItem = {
   menuItemId: string;
@@ -23,18 +23,13 @@ const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const hasLoaded = useRef(false);
 
-  // Load once on mount. The save-effect below waits for this to finish first,
-  // so it never overwrites a real saved cart with the initial empty array.
+  // Load/save from localStorage so the cart survives a page refresh
   useEffect(() => {
     const saved = localStorage.getItem("cart");
     if (saved) setItems(JSON.parse(saved));
-    hasLoaded.current = true;
   }, []);
-
   useEffect(() => {
-    if (!hasLoaded.current) return;
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 

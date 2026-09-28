@@ -75,6 +75,8 @@ export async function POST(req: NextRequest) {
       status: "PLACED",
       paymentMethod: paymentMethod || "COD",
       deliveryAddress,
+      customerLat: customerLat || null,
+      customerLng: customerLng || null,
       subtotal,
       gst,
       deliveryFee,

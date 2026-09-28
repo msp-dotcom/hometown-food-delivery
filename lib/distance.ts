@@ -26,3 +26,9 @@ export function computeRouteDistance(stops: { lat: number; lng: number }[]): num
   }
   return total;
 }
+
+// A plain Google Maps link (not the paid API) — free, no key needed, opens
+// in whatever maps app the viewer has installed.
+export function mapsLink(lat: number, lng: number): string {
+  return `https://www.google.com/maps?q=${lat},${lng}`;
+}

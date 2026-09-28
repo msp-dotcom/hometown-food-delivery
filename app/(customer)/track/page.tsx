@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { mapsLink } from "@/lib/distance";
 
 const STEPS = ["PLACED", "ACCEPTED", "PREPARING", "READY", "PICKED_UP", "DELIVERED"];
 const LABELS: Record<string, string> = {
@@ -26,6 +27,7 @@ function TrackContent() {
   const [phone, setPhone] = useState("");
   const [order, setOrder] = useState<any>(null);
   const [checkedStorage, setCheckedStorage] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   // Prefer the phone in the URL (fresh from checkout); otherwise fall back to
   // the last phone number used, remembered locally — so tapping "Track" from
@@ -47,6 +49,46 @@ function TrackContent() {
       .then((r) => r.json())
       .then((orders) => setOrder(orders[0] || null));
   }, [phone]);
+
+  async function shareLocation() {
+    if (!navigator.geolocation) {
+      alert("Location isn't available in this browser");
+      return;
+    }
+    setSharing(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        // Save this precise location to the order so the rider can see it too
+        await fetch(`/api/orders/${order.id}/location`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lat: latitude, lng: longitude }),
+        });
+        const link = mapsLink(latitude, longitude);
+        const text = `My exact location for the delivery: ${link}`;
+
+        // Use the phone's native Share sheet if available (same experience as WhatsApp's
+        // own location button) — falls back to opening WhatsApp directly with the link.
+        if (navigator.share) {
+          try {
+            await navigator.share({ text });
+          } catch {
+            // person cancelled the share sheet — no error needed
+          }
+        } else {
+          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+        }
+        setSharing(false);
+        setOrder((prev: any) => ({ ...prev, customerLat: latitude, customerLng: longitude }));
+      },
+      () => {
+        alert("Couldn't get your location");
+        setSharing(false);
+      },
+      { timeout: 10000 }
+    );
+  }
 
   if (!checkedStorage) return <p className="p-6 text-sm text-charcoalSoft">Loading…</p>;
   if (!phone) return <p className="p-6 text-sm text-charcoalSoft">No order to track yet.</p>;
@@ -85,7 +127,20 @@ function TrackContent() {
         ))}
       </div>
 
-      <div className="bg-sand rounded-xl p-4 mt-9 flex justify-between items-center gap-3">
+      {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
+        <button
+          onClick={shareLocation}
+          disabled={sharing}
+          className="w-full bg-mustard text-white text-sm font-bold rounded-xl py-3.5 mt-8 disabled:opacity-60"
+        >
+          {sharing ? "Getting your location…" : order.customerLat ? "📍 Share Location Again" : "📍 Share My Exact Location"}
+        </button>
+      )}
+      <p className="text-[11px] text-charcoalSoft text-center mt-2 leading-relaxed">
+        Helps the rider find you precisely — especially useful in apartments, PGs, or gated entrances.
+      </p>
+
+      <div className="bg-sand rounded-xl p-4 mt-6 flex justify-between items-center gap-3">
         <div className="text-xs text-charcoalSoft leading-relaxed">
           Need to change or cancel?
           <br />
