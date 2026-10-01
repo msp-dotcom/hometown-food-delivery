@@ -116,31 +116,30 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <p className="text-center text-sm text-charcoalSoft pt-24 px-6">
-        🛒 Your cart is empty. Browse a hotel to add items.
-      </p>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 text-center"><div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#fff1eb] text-3xl">🛒</div><p className="text-sm text-charcoalSoft">
+        🛒 Your cart is empty. Browse a hotel to add items.</p></div>
     );
   }
 
   return (
-    <div className="px-5 pt-7 pb-8">
-      <p className="text-xs font-bold text-mustard uppercase mb-1.5">
+    <div className="customer-page px-5 pt-6 pb-8">
+      <p className="section-label mb-1.5">
         Your Cart {hotelNames.length > 1 ? "· 1 Trip, 1 Payment" : ""}
       </p>
-      <h1 className="text-2xl font-extrabold mb-6">
+      <h1 className="text-[26px] font-extrabold tracking-[-0.03em] mb-6">
         {hotelNames.length} Hotel{hotelNames.length > 1 ? "s" : ""}
       </h1>
 
       {hotelNames.map((hn) => (
-        <div key={hn} className="border border-mustardLight rounded-xl p-4 mb-4">
-          <p className="text-xs font-bold text-mustard mb-2.5">🍽 {hn}</p>
+        <div key={hn} className="mb-4 rounded-2xl border border-line bg-white p-4 shadow-[0_3px_14px_rgba(23,33,43,0.05)]">
+          <div className="mb-3 flex items-center gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fff1eb] text-sm">🍽</span><p className="text-sm font-bold">{hn}</p></div>
           {byHotel[hn].map((i) => (
-            <div key={i.menuItemId} className="flex justify-between items-center text-sm py-1.5">
-              <span>{i.name} × {i.qty}</span>
-              <div className="flex items-center gap-3">
-                <span className="font-semibold">₹{i.qty * i.price}</span>
-                <button onClick={() => changeQty(i.menuItemId, -1)} className="text-charcoalSoft px-1">−</button>
-                <button onClick={() => changeQty(i.menuItemId, 1)} className="text-charcoalSoft px-1">+</button>
+            <div key={i.menuItemId} className="flex items-center justify-between gap-3 border-t border-line py-3 text-sm first:border-t-0">
+              <div className="min-w-0"><span className="block truncate font-medium">{i.name}</span><span className="text-[11px] text-charcoalSoft">Qty {i.qty}</span></div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold whitespace-nowrap">₹{i.qty * i.price}</span>
+                <button onClick={() => changeQty(i.menuItemId, -1)} className="touch-button flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-sand text-charcoalSoft">−</button>
+                <button onClick={() => changeQty(i.menuItemId, 1)} className="touch-button flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-sand text-charcoalSoft">+</button>
               </div>
             </div>
           ))}
@@ -148,16 +147,16 @@ export default function CartPage() {
       ))}
 
       {hotelNames.length > 1 && (
-        <div className="bg-sand rounded-lg p-3 text-xs text-charcoalSoft mb-4 leading-relaxed">
+        <div className="mb-4 rounded-2xl border border-[#f1dfd6] bg-[#fff8f5] p-3.5 text-xs leading-relaxed text-charcoalSoft">
           🛵 One rider picks up from both hotels — one delivery charge only.
         </div>
       )}
 
-      <div className="bg-sand rounded-lg p-3.5 mb-5">
+      <div className="mb-5 rounded-2xl border border-line bg-sand p-4">
         {locStatus !== "done" ? (
           <button
             onClick={useMyLocation}
-            className="w-full text-xs font-bold text-mustard"
+            className="w-full min-h-11 rounded-xl bg-white px-3 text-xs font-bold text-mustard shadow-sm border border-line"
           >
             {locStatus === "loading" ? "Getting your location…" : "📍 Use my location for accurate delivery fee"}
           </button>
@@ -173,20 +172,20 @@ export default function CartPage() {
         )}
       </div>
 
-      <div className="space-y-1.5 mb-5">
-        <div className="flex justify-between text-sm py-1"><span>GST</span><span>₹{gst}</span></div>
-        <div className="flex justify-between text-sm py-1">
+      <div className="mb-5 rounded-2xl border border-line bg-white p-4 shadow-[0_3px_14px_rgba(23,33,43,0.04)]">
+        <div className="flex justify-between py-1.5 text-sm"><span className="text-charcoalSoft">GST</span><span>₹{gst}</span></div>
+        <div className="flex justify-between py-1.5 text-sm">
           <span>Delivery Charge {distanceLabel && `(${distanceLabel})`}</span>
           <span>₹{deliveryFee}</span>
         </div>
-        <div className="flex justify-between font-bold text-base border-t border-dashed border-line mt-3 pt-3">
+        <div className="mt-3 flex justify-between border-t border-line pt-4 text-base font-extrabold">
           <span>Total</span><span>₹{total}</span>
         </div>
       </div>
 
       <p className="text-xs font-bold mb-2 mt-6">Your phone number</p>
       <input
-        className="w-full border border-line rounded-lg px-4 py-3 text-sm mb-4"
+        className="w-full min-h-12 rounded-xl border border-line bg-white px-4 py-3 text-sm outline-none transition focus:border-mustard focus:ring-2 focus:ring-mustard/10 mb-4"
         placeholder="+91 98450 xxxxx"
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
@@ -194,7 +193,7 @@ export default function CartPage() {
 
       <p className="text-xs font-bold mb-2">Delivery address</p>
       <input
-        className="w-full border border-line rounded-lg px-4 py-3 text-sm mb-4"
+        className="w-full min-h-12 rounded-xl border border-line bg-white px-4 py-3 text-sm outline-none transition focus:border-mustard focus:ring-2 focus:ring-mustard/10 mb-4"
         placeholder="House / street / landmark"
         value={address}
         onChange={(e) => setAddress(e.target.value)}
@@ -218,7 +217,7 @@ export default function CartPage() {
       <button
         disabled={placing}
         onClick={placeOrder}
-        className="w-full bg-chili text-white font-bold rounded-xl py-3.5 disabled:opacity-60"
+        className="w-full min-h-12 bg-mustard text-white font-bold rounded-xl py-3.5 shadow-sm active:scale-[0.99] disabled:opacity-60"
       >
         {placing ? "Placing order…" : "Place Order"}
       </button>

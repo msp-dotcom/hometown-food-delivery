@@ -41,21 +41,21 @@ export default function LocationBar() {
   }
 
   return (
-    <div className="mb-3" ref={wrapperRef}>
+    <div className="mb-2.5 relative" ref={wrapperRef}>
       <div
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between bg-sand rounded-xl px-4 py-3 cursor-pointer transition-colors hover:bg-line/40"
+        className="flex min-h-14 items-center justify-between rounded-2xl border border-line bg-white px-4 py-3 shadow-[0_3px_14px_rgba(23,33,43,0.05)] cursor-pointer transition hover:border-mustard/40"
       >
-        <div className="flex items-center gap-2 text-sm font-semibold truncate pr-2">
+        <div className="flex min-w-0 items-center gap-2.5 text-sm font-semibold truncate pr-2">
           📍 {selected ? `${selected.label} — ${selected.text}` : "Set your delivery location"}
         </div>
-        <span className="text-xs text-charcoalSoft flex-shrink-0 transition-transform" style={{ transform: open ? "rotate(180deg)" : "none" }}>
+        <span className="rounded-full bg-sand px-2 py-1 text-[10px] text-charcoalSoft flex-shrink-0 transition-transform" style={{ transform: open ? "rotate(180deg)" : "none" }}>
           ▼
         </span>
       </div>
 
       {open && (
-        <div className="border border-line rounded-xl mt-2 overflow-hidden shadow-lg bg-white">
+        <div className="absolute left-0 right-0 z-30 mt-2 overflow-hidden rounded-2xl border border-line bg-white shadow-[0_16px_40px_rgba(23,33,43,0.14)]">
           {addresses.map((a) => (
             <div
               key={a.id}

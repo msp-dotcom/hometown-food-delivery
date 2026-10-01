@@ -61,19 +61,21 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
   return (
     <LocationProvider>
       <CartProvider>
-        <div className="bg-sand min-h-screen">
-          <div className="max-w-md mx-auto min-h-screen bg-white shadow-xl">
+        <div className="bg-[#f6f7f8] min-h-screen">
+          <div className="customer-shell max-w-md mx-auto min-h-screen bg-white">
             <main className="pb-20">{children}</main>
-            <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-line flex">
-              <Link href="/" className="flex-1 text-center py-3.5 text-xs font-semibold text-charcoalSoft hover:text-mustard transition-colors">
-                <span className="block text-lg mb-1">⌂</span>Home
-              </Link>
-              <Link href="/cart" className="flex-1 text-center py-3.5 text-xs font-semibold text-charcoalSoft hover:text-mustard transition-colors">
-                <span className="block text-lg mb-1">🛒</span>Cart
-              </Link>
-              <Link href="/track" className="flex-1 text-center py-3.5 text-xs font-semibold text-charcoalSoft hover:text-mustard transition-colors">
-                <span className="block text-lg mb-1">◎</span>Track
-              </Link>
+            <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-md border-t border-line bg-white/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+              <div className="flex">
+                <Link href="/" className="flex min-h-16 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-charcoalSoft transition-colors hover:text-mustard">
+                <span className="text-lg leading-none">⌂</span>Home
+                </Link>
+                <Link href="/cart" className="flex min-h-16 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-charcoalSoft transition-colors hover:text-mustard">
+                <span className="text-lg leading-none">🛒</span>Cart
+                </Link>
+                <Link href="/track" className="flex min-h-16 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-charcoalSoft transition-colors hover:text-mustard">
+                <span className="text-lg leading-none">◎</span>Track
+                </Link>
+              </div>
             </nav>
           </div>
         </div>

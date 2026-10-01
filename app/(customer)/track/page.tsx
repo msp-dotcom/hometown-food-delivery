@@ -98,21 +98,21 @@ function TrackContent() {
   const hotelNames = Array.from(new Set(order.items.map((i: any) => i.hotel.name)));
 
   return (
-    <div className="px-5 pt-9 pb-8">
-      <div className="text-center mb-9">
+    <div className="customer-page px-5 pt-6 pb-8">
+      <div className="mb-7 rounded-2xl bg-sand p-5 text-center">
         <p className="text-xs text-charcoalSoft leading-relaxed">
           ORDER <b>#{order.id.slice(-6).toUpperCase()}</b> · {hotelNames.join(" + ")}
         </p>
-        <h1 className="text-xl font-extrabold mt-2">
+        <h1 className="mt-2 text-[22px] font-extrabold tracking-[-0.03em]">
           {order.deliveredAt ? "Delivered" : LABELS[order.status]}
         </h1>
       </div>
 
-      <div className="space-y-5">
+      <div className="rounded-2xl border border-line bg-white p-5 shadow-[0_3px_14px_rgba(23,33,43,0.05)] space-y-5">
         {STEPS.map((step, idx) => (
           <div key={step} className="flex gap-3.5 items-center">
             <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
                 idx < currentIndex
                   ? "bg-green text-white"
                   : idx === currentIndex
@@ -131,7 +131,7 @@ function TrackContent() {
         <button
           onClick={shareLocation}
           disabled={sharing}
-          className="w-full bg-mustard text-white text-sm font-bold rounded-xl py-3.5 mt-8 disabled:opacity-60"
+          className="w-full min-h-12 bg-mustard text-white text-sm font-bold rounded-xl py-3.5 mt-6 shadow-sm disabled:opacity-60"
         >
           {sharing ? "Getting your location…" : order.customerLat ? "📍 Share Location Again" : "📍 Share My Exact Location"}
         </button>
@@ -140,7 +140,7 @@ function TrackContent() {
         Helps the rider find you precisely — especially useful in apartments, PGs, or gated entrances.
       </p>
 
-      <div className="bg-sand rounded-xl p-4 mt-6 flex justify-between items-center gap-3">
+      <div className="bg-sand rounded-2xl p-4 mt-6 flex justify-between items-center gap-3">
         <div className="text-xs text-charcoalSoft leading-relaxed">
           Need to change or cancel?
           <br />
@@ -148,7 +148,7 @@ function TrackContent() {
         </div>
         <a
           href={`tel:${process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+919845000000"}`}
-          className="bg-green text-white text-xs font-bold px-4 py-2.5 rounded-lg flex-shrink-0"
+          className="min-h-10 bg-green text-white text-xs font-bold px-4 py-2.5 rounded-xl flex-shrink-0"
         >
           📞 Call
         </a>

@@ -78,23 +78,23 @@ export default function HotelPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="pb-28">
+    <div className="customer-page pb-28">
       {hotel.imageUrl ? (
-        <img src={hotel.imageUrl} className="h-40 w-full object-cover" alt={hotel.name} />
+        <img src={hotel.imageUrl} className="h-48 w-full object-cover" alt={hotel.name} />
       ) : (
-        <div className="h-40 bg-gradient-to-br from-mustard to-chili" />
+        <div className="h-48 bg-[#fff1eb]" />
       )}
-      <div className="px-5 -mt-5 bg-white rounded-t-3xl relative pt-5">
-        <h1 className="text-2xl font-extrabold mb-1">{hotel.name}</h1>
+      <div className="relative -mt-6 rounded-t-[28px] bg-white px-5 pt-6">
+        <h1 className="text-[24px] font-extrabold tracking-[-0.03em] mb-1">{hotel.name}</h1>
         <p className="text-xs text-charcoalSoft mb-5 leading-relaxed">{hotel.address}</p>
 
-        <div className="flex gap-2 overflow-x-auto mb-3 -mx-5 px-5">
+        <div className="flex gap-2 overflow-x-auto mb-3 -mx-5 px-5 scrollbar-none">
           {["all", ...categories].map((c) => (
             <button
               key={c}
               onClick={() => setFilter(c)}
-              className={`text-xs font-bold px-4 py-2 rounded-full whitespace-nowrap flex-shrink-0 ${
-                filter === c ? "bg-charcoal text-white" : "bg-sand text-charcoalSoft"
+              className={`min-h-10 text-xs font-bold px-4 rounded-full whitespace-nowrap flex-shrink-0 ${
+                filter === c ? "bg-charcoal text-white shadow-sm" : "bg-sand text-charcoalSoft border border-line"
               }`}
             >
               {c === "all" ? "All" : c}
@@ -108,34 +108,34 @@ export default function HotelPage({ params }: { params: { id: string } }) {
           return (
             <div key={cat} className="mt-7">
               <p className="text-sm font-bold mb-3">{cat}</p>
-              <div className="flex gap-3.5 overflow-x-auto pb-2 -mx-5 px-5">
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-none">
                 {catItems.map((m) => {
                   const inCart = items.find((i) => i.menuItemId === m.id);
                   return (
-                    <div key={m.id} className={`w-32 shrink-0 border border-line rounded-xl overflow-hidden ${!m.available ? "opacity-50" : ""}`}>
+                    <div key={m.id} className={`w-[154px] shrink-0 border border-line rounded-2xl overflow-hidden bg-white shadow-[0_3px_14px_rgba(23,33,43,0.05)] ${!m.available ? "opacity-50" : ""}`}>
                       {m.imageUrl ? (
-                        <img src={m.imageUrl} className="h-20 w-full object-cover" alt={m.name} />
+                        <img src={m.imageUrl} className="h-24 w-full object-cover" alt={m.name} />
                       ) : (
-                        <div className="h-20 bg-gradient-to-br from-mustardLight to-chili flex items-center justify-center text-2xl text-white">
+                        <div className="h-24 bg-[#fff1eb] flex items-center justify-center text-2xl">
                           {m.imageEmoji}
                         </div>
                       )}
-                      <div className="p-3">
-                        <p className="text-xs font-bold leading-snug mb-1.5">{m.name}</p>
-                        <p className="text-xs font-bold text-charcoalSoft mb-2">₹{m.price}</p>
+                      <div className="p-3.5">
+                        <p className="text-[13px] font-bold leading-snug mb-1.5 line-clamp-2">{m.name}</p>
+                        <p className="text-sm font-bold text-charcoal mb-2">₹{m.price}</p>
                         {!m.available ? (
                           <p className="text-[10px] font-bold text-chili text-center py-1">Sold Out</p>
                         ) : inCart ? (
                           <div className="flex items-center justify-between bg-mustard rounded-lg overflow-hidden">
                             <button
-                              className="text-white font-bold px-2.5 py-1"
+                              className="touch-button text-white font-bold px-2.5 py-1"
                               onClick={() => changeQty(m.id, -1)}
                             >
                               −
                             </button>
                             <span className="text-white text-xs font-bold">{inCart.qty}</span>
                             <button
-                              className="text-white font-bold px-2.5 py-1"
+                              className="touch-button text-white font-bold px-2.5 py-1"
                               onClick={() => changeQty(m.id, 1)}
                             >
                               +
@@ -143,7 +143,7 @@ export default function HotelPage({ params }: { params: { id: string } }) {
                           </div>
                         ) : (
                           <button
-                            className="w-full text-xs font-bold border border-mustard text-mustard rounded-lg py-1.5"
+                            className="w-full min-h-10 text-xs font-bold border border-mustard text-mustard rounded-xl py-1.5 active:scale-[0.98]"
                             onClick={() => handleAdd(m)}
                           >
                             Add
@@ -162,7 +162,7 @@ export default function HotelPage({ params }: { params: { id: string } }) {
       {totals.count > 0 && (
         <button
           onClick={() => router.push("/cart")}
-          className="fixed bottom-[72px] left-4 right-4 max-w-md mx-auto bg-charcoal text-white rounded-xl px-5 py-3.5 flex justify-between items-center shadow-lg"
+          className="fixed bottom-[74px] left-4 right-4 z-30 mx-auto max-w-md bg-charcoal text-white rounded-2xl px-5 py-3.5 flex justify-between items-center shadow-[0_12px_30px_rgba(23,33,43,0.22)]"
         >
           <span className="text-xs">{totals.count} items</span>
           <span className="text-sm font-bold text-mustardLight">₹{totals.subtotal} · View Cart →</span>
