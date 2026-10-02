@@ -11,109 +11,47 @@ export default function LocationBar() {
   const [manualText, setManualText] = useState("");
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Close the dropdown if the person taps anywhere outside it
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setAddingManual(false);
+        setOpen(false); setAddingManual(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  async function handleUseGPS() {
-    await useCurrentGPS();
-    setOpen(false);
-  }
-
+  async function handleUseGPS() { await useCurrentGPS(); setOpen(false); }
   function saveManual() {
-    if (!manualLabel || !manualText) {
-      alert("Enter both a label and the address");
-      return;
-    }
-    addAddress(manualLabel, manualText);
-    setManualLabel("");
-    setManualText("");
-    setAddingManual(false);
-    setOpen(false);
+    if (!manualLabel || !manualText) { alert("Enter both a label and the address"); return; }
+    addAddress(manualLabel, manualText); setManualLabel(""); setManualText(""); setAddingManual(false); setOpen(false);
   }
 
   return (
-    <div className="mb-2.5 relative" ref={wrapperRef}>
-      <div
-        onClick={() => setOpen(!open)}
-        className="flex min-h-14 items-center justify-between rounded-2xl border border-line bg-white px-4 py-3 shadow-[0_3px_14px_rgba(23,33,43,0.05)] cursor-pointer transition hover:border-mustard/40"
-      >
-        <div className="flex min-w-0 items-center gap-2.5 text-sm font-semibold truncate pr-2">
-          📍 {selected ? `${selected.label} — ${selected.text}` : "Set your delivery location"}
-        </div>
-        <span className="rounded-full bg-sand px-2 py-1 text-[10px] text-charcoalSoft flex-shrink-0 transition-transform" style={{ transform: open ? "rotate(180deg)" : "none" }}>
-          ▼
-        </span>
-      </div>
+    <div className="relative" ref={wrapperRef}>
+      <button onClick={() => setOpen(!open)} className="flex max-w-[245px] items-center gap-2 text-left">
+        <span className="max-w-[205px] truncate text-sm font-extrabold text-charcoal">{selected ? selected.label : "Set delivery location"}</span>
+        <span className="text-[10px] text-charcoalSoft">▼</span>
+      </button>
+      <p className="mt-0.5 max-w-[245px] truncate text-[10px] font-medium text-charcoalSoft">{selected ? selected.text : "Choose current GPS location"}</p>
 
       {open && (
-        <div className="absolute left-0 right-0 z-30 mt-2 overflow-hidden rounded-2xl border border-line bg-white shadow-[0_16px_40px_rgba(23,33,43,0.14)]">
+        <div className="absolute left-0 top-14 z-40 w-[min(340px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-line bg-white shadow-lift">
           {addresses.map((a) => (
-            <div
-              key={a.id}
-              onClick={() => {
-                selectAddress(a.id);
-                setOpen(false);
-              }}
-              className="px-4 py-3 text-sm border-b border-line cursor-pointer hover:bg-sand transition-colors"
-            >
-              <b>{a.label}</b> — {a.text}
-            </div>
+            <button key={a.id} onClick={() => { selectAddress(a.id); setOpen(false); }} className="block w-full border-b border-line px-4 py-3 text-left text-sm hover:bg-sand">
+              <b>{a.label}</b><span className="text-charcoalSoft"> — {a.text}</span>
+            </button>
           ))}
-
-          <div
-            onClick={handleUseGPS}
-            className="px-4 py-3 text-sm border-b border-line cursor-pointer hover:bg-sand transition-colors text-mustard font-semibold"
-          >
-            {locating ? "Getting location…" : "🎯 Use current GPS location"}
-          </div>
-
+          <button onClick={handleUseGPS} className="flex w-full items-center gap-2 border-b border-line px-4 py-3 text-left text-sm font-extrabold text-mustard hover:bg-orange-50">
+            <span className="text-lg">📍</span>{locating ? "Getting location…" : "Use current GPS location"}
+          </button>
           {addingManual ? (
             <div className="p-4">
-              <input
-                className="w-full border border-line rounded-lg px-3 py-2.5 text-xs mb-2.5"
-                placeholder="Label (e.g. Home, Work)"
-                value={manualLabel}
-                onChange={(e) => setManualLabel(e.target.value)}
-                autoFocus
-              />
-              <input
-                className="w-full border border-line rounded-lg px-3 py-2.5 text-xs mb-3"
-                placeholder="Address"
-                value={manualText}
-                onChange={(e) => setManualText(e.target.value)}
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={saveManual}
-                  className="flex-1 bg-mustard text-white text-xs font-bold rounded-lg py-2.5"
-                >
-                  Save Address
-                </button>
-                <button
-                  onClick={() => setAddingManual(false)}
-                  className="border border-line text-xs font-bold rounded-lg px-4 py-2.5"
-                >
-                  Cancel
-                </button>
-              </div>
+              <input className="mb-2.5 w-full rounded-xl border border-line bg-sand px-3 py-2.5 text-xs outline-none focus:border-mustard" placeholder="Label (e.g. Home, Work)" value={manualLabel} onChange={(e) => setManualLabel(e.target.value)} autoFocus />
+              <input className="mb-3 w-full rounded-xl border border-line bg-sand px-3 py-2.5 text-xs outline-none focus:border-mustard" placeholder="Address" value={manualText} onChange={(e) => setManualText(e.target.value)} />
+              <div className="flex gap-2"><button onClick={saveManual} className="flex-1 rounded-xl bg-chili py-2.5 text-xs font-extrabold text-white">Save Address</button><button onClick={() => setAddingManual(false)} className="rounded-xl border border-line px-4 py-2.5 text-xs font-bold">Cancel</button></div>
             </div>
-          ) : (
-            <div
-              onClick={() => setAddingManual(true)}
-              className="px-4 py-3 text-sm cursor-pointer hover:bg-sand transition-colors font-semibold text-mustard"
-            >
-              + Add new address
-            </div>
-          )}
+          ) : <button onClick={() => setAddingManual(true)} className="w-full px-4 py-3 text-left text-sm font-extrabold text-mustard hover:bg-orange-50">+ Add new address</button>}
         </div>
       )}
     </div>

@@ -30,14 +30,14 @@ export default function CategoryPage({ params }: { params: { name: string } }) {
   }, [category]);
 
   return (
-    <div className="customer-page pb-24">
-      <div className="px-5 pt-7">
-        <button onClick={() => router.back()} className="mb-5 inline-flex min-h-10 items-center rounded-full border border-line bg-white px-4 text-xs font-semibold text-charcoalSoft shadow-sm">
+    <div className="pb-28">
+      <div className="px-4 pt-6 sm:px-5">
+        <button onClick={() => router.back()} className="mb-5 inline-flex rounded-full bg-sand px-3 py-2 text-xs font-bold text-charcoalSoft">
           ← Back
         </button>
-        <p className="section-label mb-1.5">Category</p>
-        <h1 className="text-[25px] font-extrabold tracking-[-0.03em] mb-1.5">{category}</h1>
-        <p className="text-xs text-charcoalSoft mb-6 leading-relaxed">Items from every open hotel nearby</p>
+        <p className="mb-1.5 text-[10px] font-black uppercase tracking-[.16em] text-mustard">Category</p>
+        <h1 className="text-2xl font-black tracking-tight mb-1.5">{category}</h1>
+        <p className="mb-6 text-xs leading-5 text-charcoalSoft">Items from every open hotel nearby</p>
 
         {loading ? (
           <p className="text-sm text-charcoalSoft">Loading…</p>
@@ -48,32 +48,32 @@ export default function CategoryPage({ params }: { params: { name: string } }) {
             {items.map((item) => {
               const inCart = cartItems.find((i) => i.menuItemId === item.id);
               return (
-                <div key={item.id} className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_3px_14px_rgba(23,33,43,0.05)]">
-                  <div className="h-28 w-full bg-sand">
+                <div key={item.id} className="overflow-hidden rounded-[19px] border border-line bg-white shadow-soft">
+                  <div className="h-32 w-full">
                     {item.imageUrl ? (
-                      <img src={item.imageUrl} className="w-full h-full object-cover" alt={item.name} />
+                      <img src={item.imageUrl} className="h-full w-full object-cover" alt={item.name} />
                     ) : (
-                      <div className="w-full h-full bg-[#fff1eb] flex items-center justify-center text-2xl">
+                      <div className="flex h-full w-full items-center justify-center bg-orange-50 text-5xl">
                         {item.imageEmoji}
                       </div>
                     )}
                   </div>
                   <div className="p-3">
-                    <p className="text-[13px] font-bold leading-tight mb-1 line-clamp-2">{item.name}</p>
-                    <p className="text-[10px] text-charcoalSoft mb-1.5">{item.hotel.name}</p>
-                    <p className="text-sm font-bold mb-2.5">₹{item.price}</p>
+                    <p className="min-h-[34px] text-sm font-black leading-5">{item.name}</p>
+                    <p className="mt-1 truncate text-[10px] font-bold text-charcoalSoft">{item.hotel.name}</p>
+                    <p className="mt-2 text-sm font-black">₹{item.price}</p>
 
                     {inCart ? (
-                      <div className="flex min-h-10 items-center justify-between bg-mustard rounded-xl overflow-hidden">
+                      <div className="mt-2 flex h-9 items-center justify-between overflow-hidden rounded-xl bg-chili">
                         <button
-                          className="touch-button text-white font-bold px-2 py-0.5"
+                          className="h-full w-8 text-base font-black text-white"
                           onClick={() => changeQty(item.id, -1)}
                         >
                           −
                         </button>
-                        <span className="text-white text-xs font-bold">{inCart.qty}</span>
+                        <span className="w-5 text-center text-xs font-black text-white">{inCart.qty}</span>
                         <button
-                          className="touch-button text-white font-bold px-2 py-0.5"
+                          className="h-full w-8 text-base font-black text-white"
                           onClick={() => changeQty(item.id, 1)}
                         >
                           +
@@ -81,7 +81,7 @@ export default function CategoryPage({ params }: { params: { name: string } }) {
                       </div>
                     ) : (
                       <button
-                        className="w-full min-h-10 text-[11px] font-bold border border-mustard text-mustard rounded-xl py-1 active:scale-[0.98]"
+                        className="mt-2 w-full rounded-xl border border-mustard bg-white py-2.5 text-[11px] font-black text-mustard active:scale-95"
                         onClick={() =>
                           addItem({
                             menuItemId: item.id,
@@ -106,10 +106,10 @@ export default function CategoryPage({ params }: { params: { name: string } }) {
       {totals.count > 0 && (
         <button
           onClick={() => router.push("/cart")}
-          className="fixed bottom-[74px] left-4 right-4 z-30 mx-auto max-w-md bg-charcoal text-white rounded-2xl px-4 py-3.5 flex justify-between items-center shadow-[0_12px_30px_rgba(23,33,43,0.22)]"
+          className="fixed bottom-[76px] left-4 right-4 z-40 mx-auto flex max-w-[520px] items-center justify-between rounded-2xl bg-charcoal px-4 py-3.5 text-white shadow-lift"
         >
-          <span className="text-xs">{totals.count} items</span>
-          <span className="text-sm font-bold text-mustardLight">₹{totals.subtotal} · View Cart →</span>
+          <span className="text-xs font-bold">{totals.count} items</span>
+          <span className="text-sm font-black text-white">₹{totals.subtotal} · View Cart →</span>
         </button>
       )}
     </div>

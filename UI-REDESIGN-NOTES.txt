@@ -1,0 +1,12 @@
+UI redesign applied to the existing customer-facing food ordering frontend.
+
+Preserved existing business logic, API routes, database schema, cart/order logic, GPS logic, payment flow, hotel/rider/admin logic.
+
+Visual changes:
+- Professional mobile-first customer UI
+- 3D/emoji-style visual icons retained
+- Profile option is not included
+- Improved home, category, hotel menu, cart, checkout and tracking screens
+- Improved touch targets, spacing, cards, typography and colors
+- Improved mobile horizontal overflow behavior
+- Added OpenStreetMap embed on the customer tracking screen when customer GPS is available; this does not require a Google Maps API key
